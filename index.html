@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#1a1a3e"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>职业探索 Agent</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+<style>
+:root {
+  --deep: #1a1a3e; --blue: #16213e; --midnight: #0f0f2d;
+  --gold: #ffb74d; --coral: #ff8a80; --mint: #69f0ae; --sky: #64b5f6; --lavender: #ce93d8;
+  --grad: linear-gradient(135deg, #ffb74d, #ff8a80);
+  --ease: cubic-bezier(0.25,0.1,0.25,1.0);
+  --bounce: cubic-bezier(0.34,1.56,0.64,1);
+  --safe-b: env(safe-area-inset-bottom, 16px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'PingFang SC','Noto Sans SC',system-ui,sans-serif;background:var(--midnight);color:#fff;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.bg{position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(100,181,246,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 60%,rgba(206,147,216,0.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(255,183,77,0.05) 0%,transparent 40%),linear-gradient(180deg,#1a1a3e 0%,#16213e 40%,#0f0f2d 100%)}
+.glass{background:rgba(20,18,50,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.08);position:relative}
+.btn1{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;min-height:48px;min-width:48px;border:none;border-radius:16px;background:var(--grad);color:#fff;font-size:18px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(255,183,77,0.3);transition:transform .15s var(--bounce),box-shadow .15s var(--ease)}
+.btn1:active{transform:scale(0.95);box-shadow:0 2px 8px rgba(255,183,77,0.2)}
+.btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;min-height:44px;min-width:44px;border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;background:rgba(255,255,255,0.08);color:#fff;font-size:16px;font-weight:500;cursor:pointer;transition:all .15s var(--ease)}
+.btn2:active{background:rgba(255,255,255,0.15);transform:scale(0.97)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);font-size:14px;font-weight:500;color:rgba(255,255,255,0.85)}
+.progress-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.1);overflow:hidden;width:200px}
+.progress-fill{height:100%;border-radius:3px;background:var(--grad);transition:width .2s}
+.step-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .3s var(--ease)}
+.step-dot.on{background:var(--gold);box-shadow:0 0 8px rgba(255,183,77,0.5);transform:scale(1.2)}
+.step-dot.ok{background:var(--mint)}
+.fade-in{animation:fadeIn .4s var(--ease)}
+.fade-up{animation:fadeUp .4s var(--ease)}
+.bounce-in{animation:bounceIn .5s var(--bounce)}
+.shake{animation:shake .3s ease-in-out}
+.float{animation:float 3s ease-in-out infinite}
+.twinkle{animation:twinkle var(--d,2s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes spin{0%{transform:rotateY(0deg)}100%{transform:rotateY(180deg)}}
+@keyframes pop{0%{transform:scale(0) rotate(-180deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.page{width:100%;height:100%;position:absolute;inset:0;display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:20px 20px calc(20px + var(--safe-b)) 20px}
+.stars{position:absolute;inset:0;pointer-events:none}
+.star{position:absolute;animation:twinkle var(--d,2s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+.flip-card{perspective:1000px;width:200px;height:280px;cursor:pointer}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .8s var(--ease);transform-style:preserve-3d}
+.flip-inner.flipped{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.flip-front{transform:rotateY(180deg)}
+.choice-btn{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);cursor:pointer;text-align:left;color:#fff;font-size:15px;font-weight:500;line-height:1.5;width:100%;transition:all .2s}
+.choice-btn:active{transform:scale(0.97)}
+.choice-btn.sel-ok{border-color:rgba(105,240,174,0.4);background:rgba(105,240,174,0.08)}
+.choice-btn.sel-err{border-color:rgba(255,138,128,0.4);background:rgba(255,138,128,0.08)}
+.circle-countdown{width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,183,77,0.6);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;color:var(--gold);margin-bottom:4px;box-shadow:0 0 12px rgba(255,183,77,0.3);transition:all .3s}
+.circle-countdown.urgent{border-color:#ff8a80;color:#ff8a80;box-shadow:0 0 20px rgba(255,138,128,0.5);animation:urgentPulse .5s infinite}
+@keyframes urgentPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.checkbox{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.checkbox.off{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2)}
+.checkbox.on{background:var(--mint)}
+.card-3d{width:100%;max-width:300px;height:200px;perspective:800px;cursor:pointer}
+.card-3d-inner{position:relative;width:100%;height:100%;transition:transform .6s var(--ease);transform-style:preserve-3d}
+.card-3d-inner.flipped{transform:rotateY(180deg)}
+.card-3d-front,.card-3d-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px}
+.card-3d-front{transform:rotateY(180deg)}
+.dc-btn{transition:all .2s var(--ease)}
+.dc-btn:active{transform:scale(0.96)!important}
+@keyframes boxGlow{0%,100%{box-shadow:0 0 20px rgba(255,183,77,0.3),0 0 60px rgba(255,183,77,0.1)}50%{box-shadow:0 0 35px rgba(255,183,77,0.5),0 0 90px rgba(255,138,128,0.2)}}
+@keyframes boxShake{0%,100%{transform:rotate(0)}10%{transform:rotate(-8deg) scale(1.03)}20%{transform:rotate(8deg) scale(1.03)}30%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}50%{transform:rotate(-3deg)}60%{transform:rotate(3deg)}70%{transform:rotate(0)}}
+@keyframes boxOpen{0%{transform:scale(1);opacity:1}50%{transform:scale(1.2) rotate(-15deg);opacity:0.8}100%{transform:scale(0) rotate(30deg);opacity:0}}
+@keyframes heroReveal{0%{transform:scale(0) translateY(40px);opacity:0}60%{transform:scale(1.2) translateY(-10px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes burstOut{0%{transform:translate(0,0) scale(0);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1);opacity:0}}
+.mystery-box{cursor:pointer;width:180px;height:180px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;transition:transform .2s var(--bounce);animation:boxGlow 2s ease-in-out infinite}
+.mystery-box:active{transform:scale(0.95)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ============================================================
+// 决策树骨架 — 统一结构，各职业只提供场景内容
+// ============================================================
+const TREE_SKELETON = [
+  { id:'1',  aNext:'2A',bNext:'2B', aScore:12,bScore:4 },
+  { id:'2A', aNext:'3B',bNext:'3A', aScore:4, bScore:12 },
+  { id:'2B', aNext:'3A',bNext:'3B', aScore:10,bScore:5 },
+  { id:'3A', aNext:'4B',bNext:'4A', aScore:5, bScore:15 },
+  { id:'3B', aNext:'4A',bNext:'4B', aScore:12,bScore:4 },
+  { id:'4A', aNext:'5B',bNext:'5A', aScore:4, bScore:13 },
+  { id:'4B', aNext:'5A',bNext:'5B', aScore:13,bScore:0 },
+  { id:'5A', aNext:'6A',bNext:'6B', aScore:14,bScore:5 },
+  { id:'5B', aNext:'6A',bNext:'6B', aScore:12,bScore:6 },
+  { id:'6A', aNext:'7', bNext:'7',  aScore:12,bScore:3 },
+  { id:'6B', aNext:'7', bNext:'7',  aScore:2, bScore:10 },
+  { id:'7',  aNext:'8', bNext:'8',  aScore:12,bScore:5 },
+  { id:'8',  aNext:null,bNext:null,aScore:10,bScore:3 },
+];
+const MAX_SCORE = 100;
+const PASS_SCORE = 80;
+
+function buildDecisionTree(scenes, careerName) {
+  const isArray = Array.isArray(scenes);
+  const lastScene = isArray ? scenes[scenes.length-1] : scenes['5A'];
+  const fb = lastScene || { bg:'linear-gradient(180deg, #1a1a3e 0%, #16213e 40%, #0f0f2d 100%)', accent:'#ffb74d' };
+  // Per-node fallback templates — career-aware placeholders
+  const fallbacks = [
+    null, null, null, null, null, null, null, null, // 1..5A use real data
+    { sceneName:'⚡ 紧急抉择', title:'两难的考验',
+      dialogText:`作为一名${careerName}，你面临一个两难的局面——两个选择各有利弊，但必须做出决定。你选择——`,
+      aEmoji:'🤔', aLabel:'选择稳妥方案', aDesc:'安全第一，不走险棋', aFeedback:'稳妥的选择让你避免了风险，也赢得了信任。但有时候，过于保守可能错失良机。',
+      bEmoji:'🔥', bLabel:'选择大胆尝试', aDesc:'有风险但收获可能更大', bFeedback:'勇敢的尝试！虽然过程有些波折，但你展现的勇气和创新精神得到了认可。' },
+    { sceneName:'🌟 关键时刻', title:'压力下的判断',
+      dialogText:`时间紧迫，你必须在压力下做出一个影响后续走向的判断。作为${careerName}，你的选择至关重要——`,
+      aEmoji:'⏰', aLabel:'快速决策', aDesc:'时间不等人，凭直觉行动', aFeedback:'在时间压力下你的快速反应展现了专业素养。关键决策不一定要完美——但一定要及时。',
+      bEmoji:'🧘', bLabel:'冷静分析后再定', aDesc:'花几分钟评估所有可能', bFeedback:'你顶住了时间压力先做了分析，决策质量更高。有时候慢就是快——想清楚再出手。' },
+    { sceneName:'💡 意外转机', title:'隐藏的机会',
+      dialogText:`一个意想不到的情况出现了——它可能是个麻烦，也可能是个机会。作为${careerName}，你看到了什么？`,
+      aEmoji:'⚠️', aLabel:'视作风险处理', aDesc:'按标准流程规避风险', aFeedback:'你按规程处理了风险。谨慎是最可靠的策略——尤其是在不熟悉的情况下。',
+      bEmoji:'🎯', bLabel:'视作机会抓住', aDesc:'风险背后藏着意想不到的收获', bFeedback:'你敏锐地发现了风险背后的机遇，用创新的方式化险为夷。优秀的专业人才总能在别人看到麻烦的地方看到可能。' },
+    { sceneName:'🎯 最后关卡', title:'终极挑战',
+      dialogText:`接近尾声了——最后一个大关卡。你回顾了一路走来的经验，准备迎接${careerName}道路上最关键的一次考验——`,
+      aEmoji:'💪', aLabel:'全力以赴', aDesc:'把所有的经验和勇气都用上', aFeedback:'你把一路学到的都用上了。全力以赴的态度本身就是最好的答案——结果证明了这一点。',
+      bEmoji:'🧠', bLabel:'智取巧胜', aDesc:'用策略和智慧找最佳路径', bFeedback:'你巧妙地运用了之前的经验，找到了最高效的解决方案。智慧不只是知道答案——更是知道怎么找到答案。' },
+    { sceneName:'🏁 终点线', title:'最后的决定',
+      dialogText:`作为${careerName}的旅程即将结束——最后一个决定，它将为这次体验画上句号。你会选择——`,
+      aEmoji:'🌟', aLabel:'完美谢幕', aDesc:'追求最好的结局', aFeedback:'精彩的收尾！你为这次体验画上了完美的句号。记住这一路学到的东西——它们会在未来派上用场。',
+      bEmoji:'🌱', bLabel:'种下未来的种子', aDesc:'不追求完美，但留下成长的空间', bFeedback:'你选择了一个开放式的结尾——为未来留下了更多可能。有时候最好的结局不是"到此结束"而是"未完待续"。' },
+  ];
+
+  const nodes = {};
+  TREE_SKELETON.forEach((sk, i) => {
+    const s = isArray ? scenes[i] : scenes[sk.id];
+    const scene = s || fallbacks[i] || { sceneName:'⚠️', title:'待补充', dialogText:'场景数据待补充...',
+      aEmoji:'⏭️', aLabel:'跳过', aDesc:'', aFeedback:'',
+      bEmoji:'⏭️', bLabel:'跳过', bDesc:'', bFeedback:'' };
+    nodes[sk.id] = {
+      id: sk.id, sceneName: scene.sceneName, title: scene.title,
+      bg: scene.bg || fb.bg, accent: scene.accent || fb.accent,
+      dialogText: scene.dialogText,
+      choiceA: { emoji:scene.aEmoji, label:scene.aLabel, desc:scene.aDesc, score:sk.aScore, next:sk.aNext, feedback:scene.aFeedback },
+      choiceB: { emoji:scene.bEmoji, label:scene.bLabel, desc:scene.bDesc, score:sk.bScore, next:sk.bNext, feedback:scene.bFeedback },
+    };
+  });
+  return nodes;
+}
+
+// ============================================================
+// 15 个职业完整数据
+// ============================================================
+const careers = {
+
+astronaut: {
+  id:'astronaut', name:'航天员', emoji:'👨‍🚀', tagline:'飞向星辰大海，探索宇宙边疆',
+  field:'航天航空', funFact:'在太空中，航天员的身高会因为脊椎伸展而增加3-5厘米！但回到地球又会缩回去🌍',
+  intro:'航天员是乘坐宇宙飞船进入太空探索的人。他们在离地面约400公里的空间站里工作，做科学实验、维修设备、探索宇宙的奥秘——是人类勇敢的"太空探险家"。',
+  timeline:[
+    {era:'古代',emoji:'🏹',text:'古人仰望星空，梦想飞到月亮上去。600多年前，万户尝试用火箭飞天，是最早的航天追梦人。'},
+    {era:'现在',emoji:'🚀',text:'人类已登上月球、建造了空间站。中国航天员住进了自己的"太空家园"——天宫空间站。'},
+    {era:'未来',emoji:'🔭',text:'也许你长大后会登上火星、在月球建基地——下一个太空英雄可能就是你！'},
+  ],
+  abilities:[
+    {name:'强壮的身体',emoji:'💪',subject:'体育',def:'承受火箭发射时相当于4个人压在身上的超重压力，每天跑步、游泳、旋转训练。'},
+    {name:'聪明的头脑',emoji:'🧠',subject:'数学·物理·生物',def:'数学算轨道、物理理解失重、生物了解人体在太空的变化。'},
+    {name:'冷静的心态',emoji:'🧘',subject:'心理素质',def:'太空中遇紧急情况不能慌，要在几秒内做出正确判断。'},
+    {name:'灵巧的双手',emoji:'🔧',subject:'工程·计算机',def:'会修各种机器，穿着厚厚的太空服也能拧紧一颗小螺丝。'},
+  ],
+  workScenes:[
+    {time:'🌅 早起',title:'锻炼身体',desc:'跑步、力量训练，保持强壮',emoji:'🏃'},
+    {time:'🕐 上午',title:'模拟训练',desc:'在模拟飞船里练习各种操作',emoji:'🕹️'},
+    {time:'📚 下午',title:'学习知识',desc:'学物理、数学、英语、俄语...',emoji:'📖'},
+    {time:'🚀 发射',title:'飞向太空',desc:'穿航天服，坐飞船去空间站！',emoji:'🔥'},
+  ],
+  figures:[
+    {name:'杨利伟',title:'中国进入太空第一人',emoji:'🇨🇳',story:'2003年，杨利伟乘坐神舟五号飞上太空，绕地球飞了14圈。他是全中国的骄傲！'},
+    {name:'王亚平',title:'太空教师',emoji:'👩‍🚀',story:'王亚平在空间站里给全国小朋友上了一堂"太空课"——在失重环境下表演了会飘的水球，太神奇了！'},
+  ],
+  scenes: [
+    { sceneName:'🚀 火箭发射台', title:'发射倒计时', bg:'linear-gradient(180deg, #1a0808 0%, #3d1515 35%, #16213e 100%)', accent:'#ff6b6b',
+      dialogText:'发射前30分钟，你正在检查系统。突然，头盔显示器弹出黄色警告——燃料传感器读数出现轻微波动。地面指挥中心还没注意到...',
+      aEmoji:'📢', aLabel:'立即报告指挥中心', aDesc:'安全第一，让地面团队排查', aFeedback:'正确！在航天领域，"有疑问就报告"是铁律。指挥中心检查后发现阀门密封圈有微小老化——如果强行发射，高温燃气可能泄漏。',
+      bEmoji:'🤫', bLabel:'忽略警告继续发射', bDesc:'黄色只是警告不是故障', bFeedback:'冒险的选择。发射阶段任何异常都不该放过——后来的数据表明那个阀门确实有问题。别担心，太空中还会有更多选择！' },
+    { sceneName:'🫁 轨道舱', title:'氧气泄漏预警', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'进入轨道后，舱内氧气浓度正缓慢下降。如果不处理，8小时后就会达到危险水平。你判断——',
+      aEmoji:'🤔', aLabel:'先观察一小时', aDesc:'下降很慢，可能是传感器误差', aFeedback:'等待有时是策略，但氧气问题不能等。一小时后浓度又降了0.3%，排查时间更少了。太空中的"等等看"往往意味着"等危机来"。',
+      bEmoji:'🔍', bLabel:'启动泄漏定位程序', bDesc:'逐舱排查，找到泄漏源并封堵', bFeedback:'严谨！你带队逐舱排查，在实验舱管道接口处发现了微小泄漏。修补后氧气恢复正常。在太空中，永远不要对异常"等等看"——小问题会变成大麻烦。' },
+    { sceneName:'📡 通讯舱', title:'通讯系统中断', bg:'linear-gradient(180deg, #151525 0%, #1a1a35 40%, #0f1a2d 100%)', accent:'#9e9e9e',
+      dialogText:'由于之前的振动问题，通讯主频段出现间歇性故障！与地面的联系时断时续，关键指令无法完整接收。你准备——',
+      aEmoji:'📻', aLabel:'切换到备用通讯频段', aDesc:'带宽小一点，但能恢复稳定联系', aFeedback:'聪明的备份！备用频段虽慢但足以维持语音和遥测。地面夸你"临危不乱"。航天器上永远有Plan B，关键是要记得用它！',
+      bEmoji:'🔄', bLabel:'继续尝试主频段恢复', bDesc:'主频段速度快，值得再等等', bFeedback:'有些执着。主频段最终自动恢复了，但浪费了15分钟——地面无法给你发送轨道修正数据。时机往往比设备性能更重要。' },
+    { sceneName:'🧑‍🚀 气闸舱', title:'太空行走准备', bg:'linear-gradient(180deg, #0f1a2d 0%, #1a3050 40%, #0d2847 100%)', accent:'#e0e0e0',
+      dialogText:'你需要出舱检查太阳能板。面前是72项安全检查清单，队友催你"时间紧，快点"——',
+      aEmoji:'⏩', aLabel:'只检查主要的几项', aDesc:'清单太长了，时间要紧', aFeedback:'有些冒险。大多数项目确实没问题，但安全绳卡扣的松动没被发现。在太空中，"差不多"是最危险的两个字。',
+      bEmoji:'✅', bLabel:'逐项核对全部72项', bDesc:'每一项都关系到生命安全', bFeedback:'这才是专业态度！你逐项核对，发现安全绳的固定卡扣确实松动——及时拧紧避免了一次漂浮事故。清单不是建议，是生命线。' },
+    { sceneName:'🌌 舱外太空', title:'安全绳警报', bg:'linear-gradient(180deg, #050510 0%, #0a0a20 30%, #0f1a2d 100%)', accent:'#ff8a80',
+      dialogText:'你已经出舱，突然意识到——忘了检查安全绳的固定点！脚下400公里是地球，只有这一根绳子连着飞船...',
+      aEmoji:'🔙', aLabel:'立即返回气闸舱重检', aDesc:'生命安全高于一切', aFeedback:'明智的选择。返回重检加固了安全绳，花了15分钟换100%安全。勇于承认疏忽并纠正，这才是专业素养。',
+      bEmoji:'💪', bLabel:'继续工作，感觉挺牢固', bDesc:'应该没问题', bFeedback:'在赌运气。安全绳勉强撑住了，但"侥幸心理"是太空中最大的敌人。相信检查，别相信感觉。' },
+    { sceneName:'☄️ 轨道观测站', title:'陨石群预警', bg:'linear-gradient(180deg, #0a0a1e 0%, #16163a 35%, #1a1a3e 100%)', accent:'#ce93d8',
+      dialogText:'紧急消息：30分钟后，一组微型陨石将以极高速度掠过你们的轨道！在轨道速度下，豌豆大小的陨石冲击力相当于步枪子弹。你决定——',
+      aEmoji:'🤷', aLabel:'留在原位继续实验', aDesc:'这么小的陨石，概率太低了', aFeedback:'这次侥幸没被击中。但国际空间站每年都要执行多次规避机动。在轨道上，"概率低"×"后果严重"=必须认真对待。',
+      bEmoji:'🛡️', bLabel:'转移到安全舱段并固定物品', bDesc:'启动陨石防护预案', bFeedback:'教科书式应对！你和队友转移到有额外防护的核心舱段，固定所有漂浮物品。20分钟后听到舱壁传来"叮叮"声——微型陨石击中了外壁，但你们安然无恙。预防是最好的保护。' },
+    { sceneName:'🔥 实验舱', title:'舱内电气火灾', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'刺耳警报！实验舱电源模块短路，面板冒出浓烟和火花。微重力下烟雾扩散成球形——整个舱段正在被烟雾吞没！你立刻——',
+      aEmoji:'🔌', aLabel:'断电→CO₂灭火器→通知全员', aDesc:'按太空消防预案三步走', aFeedback:'完美处置！切断电源阻止火源，用CO₂灭火器（微重力下唯一有效方式），通知全员戴氧气面罩。火情30秒扑灭。记住：太空中绝对不能用水灭火——水会变成漂浮的导电水球！',
+      bEmoji:'💧', bLabel:'用水灭火！', aDesc:'地球上不都这样灭火的吗', bFeedback:'危险！微重力下水不会"浇"在火上——会分散成无数漂浮水球，导电、挡视线、损坏设备。太空灭火只能用CO₂。不过别气馁，这个知识可能救了未来的你！' },
+    { sceneName:'🧭 导航控制台', title:'轨道参数偏差', bg:'linear-gradient(180deg, #08101a 0%, #0d2440 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'返回前导航显示轨道与预定有0.3°偏差。虽小，但足以让返回舱偏离着陆区几百公里。自动导航说"在可接受范围内"。作为指令长——',
+      aEmoji:'📐', aLabel:'手动重算+地面双重验证', aDesc:'0.3°也要亲自确认', aFeedback:'精益求精！你手动重算轨道参数并让地面验证，发现自动导航确有微小误差。修正后着陆精度从"几百公里"缩小到"几公里"。航天员的严谨就体现在对0.3°的执着上。',
+      bEmoji:'🤖', bLabel:'相信自动导航系统', aDesc:'0.3°在误差范围内', bFeedback:'自动导航大多可靠，但0.3°偏差导致返回舱偏离约180公里，搜救队多花3小时。"差不多"和"精确"的差距用公里计算。' },
+    { sceneName:'📦 补给仓库', title:'物资消耗超标', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'盘点发现：食物和水比计划多消耗了20%。距返回还有3天，按目前速度最后半天可能断粮。你决定——',
+      aEmoji:'📋', aLabel:'启动紧急配给+请求补给', aDesc:'每人每日定量，优先保基本', aFeedback:'稳妥管理。你制定3天配给计划：每人每天减少20%食物摄入，饮水优先保障，同时和地面商讨紧急补给方案。在太空，资源管理就是生存管理。',
+      bEmoji:'🍞', bLabel:'按正常量，快回家了', aDesc:'就剩3天，应该够用', bFeedback:'有些乐观。最后半天食物不够，大家靠饼干撑到返回。虽平安归来但低血糖影响关键操作。"应该够"不如"确保够"。' },
+    { sceneName:'🛰️ 空间站瞭望台', title:'太空碎片逼近', bg:'linear-gradient(180deg, #050a15 0%, #0d1a30 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'雷达捕捉到高速目标：一块拳头大的太空碎片正以每秒7公里飞来！撞击概率"中等"，但在轨道速度下相撞足以击穿舱壁。你有15分钟——',
+      aEmoji:'🎯', aLabel:'执行标准碎片规避机动', aDesc:'启动推进器改变轨道高度', aFeedback:'果断正确！指挥空间站将轨道抬升800米，碎片在下方安全飞过。消耗了一些燃料但换来绝对安全。对于碎片，"躲"永远比"扛"聪明。',
+      bEmoji:'👀', bLabel:'先观察，可能是虚警', aDesc:'碎片预测经常不准', bFeedback:'这次碎片在2公里外飞过没撞上。但2021年国际空间站曾被几厘米碎片击穿机械臂。轨道上"狼来了"不是寓言——每次预警都要认真对待。' },
+    { sceneName:'🥶 舱外维修点', title:'航天服温控失灵', bg:'linear-gradient(180deg, #0a1520 0%, #152535 40%, #1a3050 100%)', accent:'#80deea',
+      dialogText:'你正在舱外维修天线，航天服温控系统突然故障！舱外温度接近零下150°C，服内从22°C骤降到8°C，你的手指开始发麻——',
+      aEmoji:'🥶', aLabel:'再坚持一下，快修好了', aDesc:'就差最后一步了', aFeedback:'很危险。你修好了天线，但回舱时体温已降到危险水平，花了2小时才恢复。在太空中，"知道什么时候撤退"比"坚持到底"更需要智慧。',
+      bEmoji:'🏃', bLabel:'立即中止任务返回气闸舱', aDesc:'体温过低比任务失败更危险', bFeedback:'保命第一！你果断中止任务返回舱内，检查发现温控系统加热线圈短路了。再待10分钟，低体温症会让你失去操作能力。航天员守则第一条：活着回来比完成任务更重要。' },
+    { sceneName:'🌍 返回舱', title:'再入大气层决策', bg:'linear-gradient(180deg, #1a0f08 0%, #3d2010 35%, #1a1a3e 100%)', accent:'#ff9800',
+      dialogText:'返回舱已脱离空间站。地面紧急通报：预定着陆区有强雷暴，风速超标。返回舱能承受恶劣天气但风险显著增加——',
+      aEmoji:'⏳', aLabel:'在轨道多绕一圈等雷暴过去', aDesc:'平安比准时更重要', aFeedback:'耐心是航天员的美德。在轨道多等90分钟，雷暴刚好移出着陆区，返回舱在晴空中平稳降落。在航天中，"准时"从来不是第一优先级——"平安"才是。',
+      bEmoji:'🌩️', bLabel:'按原计划穿越雷暴降落', bDesc:'返回舱设计时考虑了恶劣天气', bFeedback:'返回舱确实抗住了雷暴，但颠簸非常剧烈。着陆时强风吹偏了降落伞，返回舱侧翻在草原上，偏离着陆点20多公里。有惊无险但本可更从容。' },
+    { sceneName:'🪂 着陆场上空', title:'降落伞故障', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#66bb6a',
+      dialogText:'距地面5000米，主降落伞展开时——一个伞绳缠绕了！返回舱以更快速度下坠，硬着陆可能导致受伤。备用伞系统已就绪——',
+      aEmoji:'🆘', aLabel:'启动备用降落伞系统', aDesc:'双伞冗余，安全第一', aFeedback:'完美收尾！备用伞顺利展开，返回舱平稳着陆在预定区域。你始终如一的"安全至上"原则为这趟太空之旅画上了完美句号。',
+      bEmoji:'🤞', bLabel:'一个降落伞应该够用', bDesc:'伞绳缠绕会自动解开', bFeedback:'伞绳最后部分解开了，但着陆冲击比正常大了不少。好在减震座椅保护了你们。不过启动备用伞会从容很多——最后一刻"多加一层保障"总是值得的。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中国科学技术馆·太空探索厅',location:'北京',desc:'全国最大的太空主题展厅，有真实的返回舱、火箭发动机、太空服展示',url:'https://cstm.cdstm.cn/'},
+      {name:'北京航天城',location:'北京',desc:'中国航天员训练基地（部分开放），可看到真实训练设备和模拟器',url:'https://www.cmse.gov.cn/'},
+    ],
+    practices:[
+      {name:'北京航天科普夏令营',location:'北京',desc:'为期5天的沉浸式航天体验：模拟发射、失重水槽、航天服试穿、火箭模型制作',url:'https://cstm.cdstm.cn/'},
+      {name:'中国科技馆"小小航天员"活动',location:'北京',desc:'周末半天活动，在科技馆太空展厅进行角色扮演，完成太空任务闯关',url:'https://cstm.cdstm.cn/'},
+    ],
+    books:[
+      {name:'《下一站火星》',desc:'用漫画形式讲述火星探索的历史和未来计划，适合低年级独立阅读，大量插图'},
+      {name:'《太空旅行指南》',desc:'从训练到发射到在轨生活，关于太空旅行你需要知道的一切'},
+      {name:'《中国航天员》',desc:'真实记录中国航天员从选拔到飞天的全过程，大量珍贵照片和第一人称讲述'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🎠',title:'航天员要坐"疯狂旋转椅"',desc:'前庭训练用的旋转椅每分钟转30圈！它能帮助航天员适应太空中的眩晕感。很多航天员第一次上去都会吐——但坚持下来就好了。厉害的人不是天生厉害，是练出来的！'},
+    {emoji:'🧯',title:'太空中最怕的不是外星人，是火灾',desc:'在微重力环境下，火焰是球形的，而且更难扑灭。所以每次实验前，航天员都要先确认灭火器在附近。安全习惯，救命的习惯！'},
+    {emoji:'🌟',title:'航天员在太空中会长高！',desc:'因为失重，脊椎骨之间的空隙会扩张，航天员在太空中能长高3-5厘米！不过回到地球后，重力又会把他们"压"回去。这就是为什么航天员回到地面要被抬着走——他们的身体需要时间重新适应重力。'},
+  ],
+},
+
+doctor: {
+  id:'doctor', name:'医生', emoji:'👨‍⚕️', tagline:'用专业和仁心守护每一个生命',
+  field:'医疗卫生', funFact:'人的心脏每天跳动约10万次，一年就是3500万次——医生的工作就是保护好这个不知疲倦的"发动机"❤️',
+  intro:'医生是诊断疾病、治疗伤病、守护健康的人。他们在医院里用知识和技能帮助生病的人恢复健康——从感冒发烧到复杂的手术，医生是每个人生命中的"健康守护者"。',
+  timeline:[
+    {era:'古代',emoji:'🌿',text:'古代医生用草药和针灸治病。中国有华佗、张仲景这样的名医，用智慧总结出治病的各种方法。'},
+    {era:'现在',emoji:'🏥',text:'现代医生用CT、核磁共振等高科技设备"看透"人体，用微创手术在很小的伤口里完成复杂操作。'},
+    {era:'未来',emoji:'🤖',text:'AI辅助诊断、基因治疗、3D打印器官——未来医生将拥有更多"超能力"来治愈疾病。'},
+  ],
+  abilities:[
+    {name:'细致的观察力',emoji:'🔍',subject:'生物·化学',def:'通过症状、检查报告发现疾病线索，像侦探一样推理病因。'},
+    {name:'冷静的判断力',emoji:'💡',subject:'数学·逻辑',def:'在急诊室里快速判断哪个病人最紧急，做出正确治疗决策。'},
+    {name:'温暖的同理心',emoji:'💛',subject:'语文·沟通',def:'理解病人和家属的感受，用简单的话解释复杂的病情。'},
+    {name:'灵巧的双手',emoji:'🤲',subject:'生物·物理',def:'做手术时手要稳、要准，一毫米的偏差都可能影响治疗效果。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'查房问诊',desc:'到病房看病人的恢复情况',emoji:'🏥'},
+    {time:'🕐 上午',title:'门诊看病',desc:'为来看病的人诊断开药',emoji:'🩺'},
+    {time:'📚 下午',title:'会诊讨论',desc:'和同事一起研究复杂病情',emoji:'👥'},
+    {time:'🚨 夜晚',title:'急诊抢救',desc:'随时准备应对紧急情况',emoji:'🏃'},
+  ],
+  figures:[
+    {name:'钟南山',title:'中国抗疫英雄',emoji:'🇨🇳',story:'2020年新冠疫情爆发，84岁的钟南山坐着高铁连夜赶往武汉。他说："把最重的病人送到我这来。"保护了无数人的生命。'},
+    {name:'林巧稚',title:'万婴之母',emoji:'👩‍⚕️',story:'林巧稚是中国现代妇产科学的奠基人。她一生接生了5万多个婴儿，自己没有孩子，却是世界上最伟大的"妈妈"。'},
+  ],
+  scenes: [
+    { sceneName:'🚨 急诊室', title:'两位患者同时到达', bg:'linear-gradient(180deg, #1a0808 0%, #2d1515 35%, #16213e 100%)', accent:'#ff5252',
+      dialogText:'晚上10点，急诊室突然推进来两位患者：一位是剧烈胸痛的中年男子，一位是摔伤头部血流不止的小学生。你的判断是——',
+      aEmoji:'❤️', aLabel:'先处理胸痛患者', aDesc:'可能是心梗，每延迟1分钟就多一分危险', aFeedback:'正确！胸痛可能是急性心肌梗死，每延迟1分钟心肌就多坏死一部分。头部外伤虽然流血吓人，但护士可以先压迫止血。分诊的核心是"先救命，再治伤"。',
+      bEmoji:'🩹', bLabel:'先处理头部外伤的孩子', bDesc:'血流不止看起来很严重', bFeedback:'头部伤口看起来很吓人，但外伤流血可以由护士先压迫止血。胸痛患者的心电图显示ST段抬高——再等下去就是大面积心肌坏死。急诊的优先级是：危重>急重>普通。' },
+    { sceneName:'🔬 化验室', title:'化验结果与症状矛盾', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'面对一位持续高烧的儿童，化验报告显示白细胞正常——但孩子精神萎靡、呼吸急促。你选择——',
+      aEmoji:'📋', aLabel:'按化验结果开退烧药', aDesc:'化验是客观证据，先对症治疗', aFeedback:'有些武断。孩子后来被确诊为病毒性心肌炎——病毒感染时白细胞不一定升高。化验只是辅助，医生的"临床直觉"来自对病人的密切观察。',
+      bEmoji:'🩺', bLabel:'收住院密切观察', bDesc:'临床症状比化验单更值得警惕', bFeedback:'明智的判断！住院后发现孩子心肌酶明显升高，确诊为急性病毒性心肌炎，及时治疗避免了严重后果。好的医生不只看化验单，更要看病人。' },
+    { sceneName:'🏥 病房', title:'治疗方案的分歧', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#66bb6a',
+      dialogText:'一位患者的病情比较复杂——手术治疗和保守治疗各有利弊。同事建议手术，家属也倾向手术，但你判断保守治疗更稳妥。你选择——',
+      aEmoji:'🤝', aLabel:'同意手术方案', aDesc:'尊重同事和家属意见', aFeedback:'手术很顺利，但术后患者出现并发症，恢复期比预期长了2个月。有时候多数人的意见不一定是最佳方案——医生要对专业判断有信心。',
+      bEmoji:'📊', bLabel:'坚持保守治疗+详细告知', bDesc:'用数据和耐心说服家属和同事', bFeedback:'你拿出国内外最新指南和类似病例数据，耐心解释保守治疗的优势。患者3周后顺利出院。医生的责任是用专业说服患者，而不是被患者说服。' },
+    { sceneName:'💬 诊室', title:'告知坏消息', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'检查结果出来了——患者确诊为恶性肿瘤。家属要求"别告诉本人"，但患者是个成年人，有权知道自己的病情。你决定——',
+      aEmoji:'🤐', aLabel:'听家属的，先瞒着患者', aDesc:'保护患者情绪，慢慢透露', aFeedback:'出于善意但欠妥。患者后来从别处得知真相，感觉被欺骗，对治疗配合度反而下降了。隐瞒往往造成更大的信任危机。',
+      bEmoji:'🗣️', bLabel:'坦诚告知但充满关怀', bDesc:'选择一个安静的环境慢慢说', bFeedback:'你在安静的谈话间里，用温和的语气告诉患者真实情况，并详细说明了后续的治疗方案和希望。患者虽然难过，但说"谢谢你告诉我，我会好好配合治疗"。尊重是最好的关怀。' },
+    { sceneName:'💊 药房', title:'用药的两难选择', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'两个治疗方案：A方案见效快但有10%的严重副作用风险；B方案温和安全但需要3倍时间。患者说"医生您决定吧"——',
+      aEmoji:'⚡', aLabel:'用A方案快速见效', aDesc:'10%风险很低，大部分患者没事', aFeedback:'这次确实有效且没有发生副作用。但医生不能依赖"这次运气好"——10%意味着每10人就有一个出事。',
+      bEmoji:'🛡️', bLabel:'先试B方案，密切监测', bDesc:'安全第一，效果慢一点没关系', bFeedback:'稳妥的决策！2周后病情开始好转，没有副作用，患者也很满意。医学的基本原则是"首先不伤害"——安全永远排在速度前面。' },
+    { sceneName:'🦠 发热门诊', title:'疑似传染病', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'一位从国外回来的患者高烧不退，症状疑似某种传染病。需要隔离观察确认，但患者很抗拒——"我只是普通感冒"——',
+      aEmoji:'🚫', aLabel:'启动传染病隔离预案', aDesc:'宁可过度防范，不能成为传播源', aFeedback:'果断正确！虽然患者不太高兴，但检测结果证实是输入性传染病。你的谨慎避免了一次可能的社区传播。在公共卫生面前，宁可"小题大做"也不能漏掉一个。',
+      bEmoji:'🤒', bLabel:'按普通感冒处理放行', aDesc:'症状不典型，可能真的只是感冒', bFeedback:'很遗憾——2天后患者确诊，期间已接触了大量人群，疾控中心启动了紧急追踪。医生的责任不仅是对面前的患者，还有患者背后的整个社会。' },
+    { sceneName:'🌙 夜班值班室', title:'深夜的艰难抉择', bg:'linear-gradient(180deg, #050510 0%, #0f0f2d 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'凌晨3点，ICU的一位老人病情突然恶化。家属电话打不通，你需要在没有家属签字的情况下做一个高风险急救决定——',
+      aEmoji:'⚕️', aLabel:'立即实施急救措施', aDesc:'生命高于流程，救人第一', aFeedback:'正确的担当！你按照规定启动"紧急情况无授权救治"程序，成功稳住了患者。法律保护医生在紧急情况下为抢救生命所做的合理决策。生命至上，流程服务于生命。',
+      bEmoji:'⏳', bLabel:'继续打电话等家属签字', aDesc:'按规矩办事最稳妥', bFeedback:'15分钟后终于打通电话，但患者已错过最佳急救窗口期。流程很重要，但流程是为了保护生命而存在的——当流程成为障碍时，生命优先。' },
+    { sceneName:'🌈 康复科', title:'漫长康复路', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'患者手术成功后进入康复阶段，但因疼痛不愿做康复训练——"太疼了，今天不练了"。你知道不坚持训练可能导致终身功能障碍——',
+      aEmoji:'💪', aLabel:'耐心鼓励+制定阶梯计划', aDesc:'分解目标，每次只练一小步', aFeedback:'康复的真谛！你把训练目标分解成"今天只练3分钟"，患者在鼓励下慢慢建立了信心。康复不是一蹴而就——好医生不只是治病，更是陪伴患者走过最难的恢复之路。',
+      bEmoji:'😔', bLabel:'尊重患者，让他休息一天', aDesc:'今天太疼了，明天再练也行', bFeedback:'心软可以理解，但康复训练的"黄金窗口期"错过就很难弥补。3个月后患者关节活动度仍不理想，后悔当初没有坚持。有时候，医生的"狠心"也是爱。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京急救科技馆',location:'北京',desc:'学习急救知识，体验模拟心肺复苏和急救场景',url:'https://www.beijing120.com/'},
+      {name:'北京协和医院院史馆',location:'北京',desc:'了解中国现代医学发展史，参观百年医院的珍贵医学文物',url:'https://www.pumch.cn/'},
+    ],
+    practices:[
+      {name:'北京红十字会青少年急救课程',location:'北京',desc:'学习包扎、心肺复苏等急救技能，考核通过获得证书',url:'https://www.bjredcross.org.cn/'},
+      {name:'北京儿童医院"小医生体验日"',location:'北京',desc:'穿上白大褂，模拟问诊、听诊、开处方，体验医生的一天',url:'https://www.bch.com.cn/'},
+    ],
+    books:[
+      {name:'《人体奥秘大百科》',desc:'用立体图和翻翻页展示人体各个器官系统的工作原理'},
+      {name:'《当医生真好玩》',desc:'漫画形式讲述医生的日常工作，解答孩子关于医院的各种好奇'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🫀',title:'心脏真的是一个"泵"',desc:'你的心脏只有拳头那么大，但每天泵出约7000升血液——相当于35个浴缸！医生的工作就是保护这个"超级水泵"和身体的每一部分。'},
+    {emoji:'🔬',title:'医生就像"人体侦探"',desc:'医生通过症状、体征和检查结果来推理病因，就像侦探破案一样。一个腹痛可能来自胃、肠、肝、胆甚至心脏——需要逐一"排查嫌疑人"！'},
+    {emoji:'💊',title:'最古老的处方有4000年了',desc:'古埃及人4000年前就用蜂蜜治疗伤口——蜂蜜中的过氧化氢能杀菌。很多现代药物其实来自大自然：阿司匹林来自柳树皮，青霉素来自霉菌。大自然是最大的药房！'},
+  ],
+},
+
+teacher: {
+  id:'teacher', name:'教师', emoji:'👩‍🏫', tagline:'点亮一盏灯，照亮无数人的前路',
+  field:'教育', funFact:'一个老师平均每天要说大约15000个字，一年下来相当于写了16本小说📝',
+  intro:'教师是在学校里教学生知识、培养品格的人。从认字算数到做人道理，老师陪伴着每个孩子一天天长大——他们是"人类灵魂的工程师"。',
+  timeline:[
+    {era:'古代',emoji:'📜',text:'古代的老师叫"先生"，私塾里一个老师教几个学生。孔子是中国最伟大的老师，他的教育思想影响了2500多年。'},
+    {era:'现在',emoji:'🏫',text:'现代教室有黑板、投影仪、电脑。老师用各种有趣的方式教知识，每个班级像一个温暖的大家庭。'},
+    {era:'未来',emoji:'🌐',text:'未来的老师可能用VR带学生"穿越"到古代、进到细胞内部、飞到太空——让学习变成一场冒险。'},
+  ],
+  abilities:[
+    {name:'清晰的表达力',emoji:'🗣️',subject:'语文',def:'把复杂的知识用简单有趣的方式讲清楚，让每个学生都能听懂。'},
+    {name:'敏锐的观察力',emoji:'👀',subject:'心理学',def:'发现哪个学生有心事、哪个没听懂，及时给予帮助和鼓励。'},
+    {name:'极大的耐心',emoji:'🧘',subject:'教育学',def:'一个知识点可能要讲10遍、20遍——永远不放弃任何一个学生。'},
+    {name:'创意的教学设计',emoji:'🎨',subject:'艺术·科学',def:'把枯燥的知识点设计成好玩的游戏、实验，让学生爱上学习。'},
+  ],
+  workScenes:[
+    {time:'🌅 早晨',title:'迎接到校',desc:'在校门口笑着迎接每一个学生',emoji:'☀️'},
+    {time:'🕐 上午',title:'上课教学',desc:'用有趣的方式讲知识，提问互动',emoji:'📚'},
+    {time:'🍎 中午',title:'陪餐午休',desc:'和学生一起吃饭聊聊今天的事',emoji:'🍱'},
+    {time:'📝 放学后',title:'批改作业',desc:'一本一本认真改完，写上鼓励的话',emoji:'✏️'},
+  ],
+  figures:[
+    {name:'张桂梅',title:'大山里的校长妈妈',emoji:'🏔️',story:'张桂梅在云南大山里创办了全国第一所免费女子高中。她每天早上5点起床叫学生读书，帮助2000多个贫困女孩考上了大学。她说过："只要我还有一口气，就要站在讲台上。"'},
+    {name:'陶行知',title:'伟大的人民教育家',emoji:'📖',story:'陶行知说"捧着一颗心来，不带半根草去"。他脱掉西装去农村办学，教穷人家的孩子读书识字，用教育改变了一个又一个孩子的命运。'},
+  ],
+  scenes: [
+    { sceneName:'🏫 教室', title:'课堂上的意外', bg:'linear-gradient(180deg, #1a1508 0%, #2d2810 35%, #16213e 100%)', accent:'#ffb74d',
+      dialogText:'你正在讲一个重要的知识点，突然教室后排两个学生大声争吵起来，全班注意力都被吸引过去了——',
+      aEmoji:'🗣️', aLabel:'先停下讲课处理冲突', aDesc:'了解发生了什么，帮两个学生和解', aFeedback:'正确的选择！你没有简单地批评谁，而是蹲下来听两个学生分别讲述，引导他们互相理解。10分钟后冲突化解了，课堂继续。孩子学会处理冲突，比多学一个知识点更重要。',
+      bEmoji:'📢', bLabel:'严厉制止并继续上课', bDesc:'不能因为两个学生耽误全班进度', bFeedback:'安静是安静了，但两个学生闷了一整天，下午又闹了起来。课堂管理不只是"安静"——理解冲突的原因才能解决问题。' },
+    { sceneName:'📖 办公室', title:'学习困难的学生', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'有个学生连续3次数学考试不及格，越来越沉默，上课开始趴桌。同事建议"给家长打电话让盯着学"——',
+      aEmoji:'📞', aLabel:'联系家长督促学习', aDesc:'让家长管，老师只管上课', aFeedback:'电话打完后学生确实被家长逼着多做了几道题，但变得更不喜欢数学了。问题没有解决，只是转移了。',
+      bEmoji:'💬', bLabel:'单独约谈了解原因', aDesc:'找出为什么跟不上，再针对性帮助', bFeedback:'你发现学生的乘法口诀是死记硬背的，不理解原理。你用积木和游戏重新教他理解乘法，两周后他第一次考了70分——眼里重新有了光。好的老师教"人"而不只是教"书"。' },
+    { sceneName:'📱 家长群', title:'家长的投诉', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'一位家长在微信群里公开质疑你的教学方法——"为什么让孩子玩中学？学不到东西怎么办？"其他家长开始观望——',
+      aEmoji:'📝', aLabel:'在群里详细解释教学理念', aDesc:'用专业说服质疑者', aFeedback:'你写了一大段解释，但群里的讨论更激烈了。公开争论往往越争越乱——情绪比理性跑得快。',
+      bEmoji:'🤝', bLabel:'私信家长+邀请来听课', aDesc:'让家长亲身感受课堂', bFeedback:'家长来听了一节课，亲眼看到孩子们在游戏中学会了数学概念，彻底改变了看法。亲身体验是最好的说服——让家长成为教育伙伴，而不是对立面。' },
+    { sceneName:'🎯 教务处', title:'公开课的压力', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'下周有区级公开课比赛，有人建议你"提前让学生演练几遍，确保万无一失"。但这种做法违背了"真实课堂"的原则——',
+      aEmoji:'🎭', aLabel:'提前演练确保完美', aDesc:'排练好，学生配合回答，保证获奖', aFeedback:'课确实"完美"——但评委注意到学生回答问题太熟练、没有真实的思考过程。教学不是表演，学生不是演员。',
+      bEmoji:'🌱', bLabel:'保持真实课堂+小设计', aDesc:'不排练，但精心设计探究环节', bFeedback:'课堂上学生真的在思考、争论、犯错、成长。虽然不够"流畅"，但评委被真实的思维碰撞打动了。真正的教育就应该是"不完美的精彩"。' },
+    { sceneName:'⚡ 课间', title:'校园突发事件', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'课间操场上，一个学生摔倒了膝盖流血，周围同学围成一团。同时，另一个角落两个孩子因为抢球场快要打起来了——',
+      aEmoji:'🩹', aLabel:'先处理受伤的学生', aDesc:'流血的先处理，打架的先喊停', aFeedback:'你让学生干部先带受伤孩子去医务室，自己快速赶去制止冲突。合理的优先级判断——身体伤害优先，但也不能忽视冲突升级的风险。',
+      bEmoji:'✋', bLabel:'先去制止打架', aDesc:'受伤的不严重，打架可能更危险', bFeedback:'你成功阻止了打架，但受伤学生被凉在操场上哭了很久。在孩子的世界里，被冷落的伤害可能比膝盖擦伤更疼。' },
+    { sceneName:'👨‍👩‍👧 家长会', title:'特殊孩子的问题', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'班会时，一个内向的孩子突然情绪崩溃大哭起来。其他家长和孩子都在——你会怎么做？',
+      aEmoji:'🏃', aLabel:'让助教带出去安抚', aDesc:'不影响班会继续进行', aFeedback:'孩子被带到走廊，但他觉得自己"被赶出去"了，更难过。有时候，尊重比效率更重要。',
+      bEmoji:'🤗', bLabel:'暂停班会，全班一起安慰', aDesc:'让同学们学会关心他人', bFeedback:'你暂停了班会，轻轻问："谁也有过不开心的时候？"好几个孩子举手分享。教室变成了温暖的港湾。那一刻，所有人学会了比"成绩"更重要的东西——共情。' },
+    { sceneName:'📊 期末', title:'评分与成长', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'期末评价——一个孩子考试成绩从80分降到72分，但他整个学期都特别努力，只是家庭出了变故影响学习。你纠结于怎么给评语——',
+      aEmoji:'📉', aLabel:'如实记录分数下降', aDesc:'数字是客观的，下降就是下降', aFeedback:'虽然客观，但对一个努力的孩子来说，只看到分数下降太打击了。教育不只是数字——孩子的成长比分数复杂得多。',
+      bEmoji:'🌟', bLabel:'在评语中肯定努力+进步', aDesc:'标注"学习态度优秀"，指出具体的闪光点', bFeedback:'你在评语中写"你克服了很多困难，老师为你骄傲"。孩子看到评语哭了——不是因为分数，是因为有人看到了他的努力。这个评语可能比100分更能激励一个人。' },
+    { sceneName:'🎓 毕业季', title:'最后的叮嘱', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'带了三年的学生即将毕业，这是最后一节课。你可以选择讲讲考试注意事项，或者——',
+      aEmoji:'📋', aLabel:'强调考试要点', aDesc:'帮助他们在升学考试中多拿几分', aFeedback:'有用但不够。考试分数会随着试卷被遗忘——但老师的话会留在心里一辈子。',
+      bEmoji:'💝', bLabel:'分享做人道理和祝福', aDesc:'记住：比分数更重要的是善良和勇气', bFeedback:'你分享了三个故事——一个关于善良、一个关于勇气、一个关于坚持。学生多年后可能忘了你教的知识点，但会记得你说"做一个善良的人，比考100分更重要"。这才是教育。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京师范大学·中国教师博物馆',location:'北京',desc:'了解中国教育发展史，体验古代私塾和现代课堂的变迁',url:'https://www.bnu.edu.cn/'},
+      {name:'北京四中开放日',location:'北京',desc:'参观著名学校的真实课堂，看看现代化教学场景',url:'https://www.bhsf.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年"小老师"体验营',location:'北京',desc:'给更小的孩子讲课、设计一堂趣味小课，体验当老师的乐趣',url:'https://www.bjcyc.com.cn/'},
+      {name:'蒲公英支教体验（亲子版）',location:'北京',desc:'跟随支教团队走进乡村小学，帮助当地孩子，感受教育的力量',url:'https://www.bv2008.cn/'},
+    ],
+    books:[
+      {name:'《窗边的小豆豆》',desc:'巴学园里发生的有趣教育故事，让你看到不一样的老师和学校'},
+      {name:'《第56号教室的奇迹》',desc:'美国传奇老师雷夫的故事——他用信任和热情改变了无数孩子'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🧠',title:'每个孩子学习方式都不同',desc:'有的孩子是"看"着学（视觉型），有的是"听"着学（听觉型），还有的是"动"着学（动觉型）。好老师会用不同的方式教同一个知识——因为每个人都不一样！'},
+    {emoji:'💡',title:'提问比回答更重要',desc:'研究发现，好的老师不是"给答案的人"，而是"会提问的人"。一个巧妙的提问能让学生自己探索出答案——这样学到的知识永远忘不掉。'},
+    {emoji:'🌱',title:'人的大脑可以一直学到老',desc:'科学家发现大脑具有"神经可塑性"——不管你多大，学习新东西都会让大脑长出新的连接。所以老师说"没有笨学生，只有还没找到方法的聪明人"是有科学依据的！'},
+  ],
+},
+
+psychologist: {
+  id:'psychologist', name:'心理咨询师', emoji:'🧠', tagline:'听懂没说出口的话，照亮看不见的角落',
+  field:'心理健康', funFact:'人的大脑有大约860亿个神经元，每个神经元可以连接上万个其他神经元——你的内心世界比宇宙还复杂🧠✨',
+  intro:'心理咨询师是帮助人们解决心理困扰、保持心理健康的专业人员。他们用倾听和对话帮助那些焦虑、难过或困惑的人重新找到内心的力量——是"心灵的医生"。',
+  timeline:[
+    {era:'古代',emoji:'🏛️',text:'古希腊哲学家苏格拉底用提问帮助人们认识自己。中国古代讲究"修身养性"，用冥想和自省保持内心平和。'},
+    {era:'现在',emoji:'🛋️',text:'心理咨询师在咨询室里通过对话帮助来访者——不直接给建议，而是用提问让人找到自己的答案。'},
+    {era:'未来',emoji:'🧘',text:'学校、公司、社区都有心理咨询师。关注心理健康就像锻炼身体一样，成为每个人的日常习惯。'},
+  ],
+  abilities:[
+    {name:'深度倾听',emoji:'👂',subject:'语文·沟通',def:'不只听"说了什么"，更能捕捉语气、表情、停顿中的隐藏信息。'},
+    {name:'逻辑分析',emoji:'🧩',subject:'数学·逻辑',def:'像拼图一样把零散的信息拼成完整的心理画像。'},
+    {name:'情绪觉察',emoji:'💛',subject:'心理学',def:'敏锐感知他人的情绪变化，用共情建立信任。'},
+    {name:'稳定心态',emoji:'⚖️',subject:'心理素质',def:'每天面对负面情绪却能保持内心平衡，不把别人的问题带回家。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'整理个案',desc:'回顾之前的咨询记录，制定今天计划',emoji:'📋'},
+    {time:'🕐 上午',title:'会谈咨询',desc:'在安静的房间和来访者对话',emoji:'🛋️'},
+    {time:'📝 下午',title:'案例讨论',desc:'和同事交流心得，互相学习和支持',emoji:'👥'},
+    {time:'🧘 傍晚',title:'自我照顾',desc:'看书、运动，处理自己的情绪',emoji:'🌿'},
+  ],
+  figures:[
+    {name:'弗洛伊德',title:'精神分析之父',emoji:'🧔',story:'一百多年前，弗洛伊德发现人有很多"潜意识"的想法——就像水面下的冰山，看不见却影响着我们的行为和感受。他是第一个系统地研究人类内心世界的人。'},
+    {name:'卡尔·罗杰斯',title:'人本主义心理学先驱',emoji:'👂',story:'罗杰斯发现，只要给一个人无条件的接纳和理解，他就会自己找到成长的答案。他证明了"倾听"的力量比"给建议"更强大——每个人都是自己生命最好的专家。'},
+  ],
+  scenes: [
+    { sceneName:'🚪 咨询室', title:'第一次咨询', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'一位青少年坐在你对面，低着头不说话——被父母带来，满心抗拒。"我没问题，是他们非要我来的。"你的第一句话是——',
+      aEmoji:'📋', aLabel:'先解释咨询的基本规则', aDesc:'保密原则、咨询时长，先建立框架', aFeedback:'规矩讲清楚了但来访者更沉默了。对被动来访的青少年，结构性开场容易让对方感觉"被审问"。建立信任从情感连接开始，而不是规则。',
+      bEmoji:'💬', bLabel:'先聊聊他喜欢什么', aDesc:'不急着谈"问题"，先建立信任', bFeedback:'你注意到他书包上的动漫挂件，从动漫聊到画画，15分钟后他第一次抬头看你。"好像也不是非走不可"——好的咨询从"不着急"开始。' },
+    { sceneName:'⚠️ 危机热线', title:'深夜来电', bg:'linear-gradient(180deg, #1a0808 0%, #2d1515 35%, #16213e 100%)', accent:'#ff5252',
+      dialogText:'深夜值班，电话那头传来哭泣声："我不想活了。"这是危机干预，每一句话都很关键——',
+      aEmoji:'🚨', aLabel:'立即报警并联系家属', aDesc:'涉及生命安全必须马上行动', aFeedback:'警方赶到后确认安全，但来访者不再信任你——"我告诉你是信任你，你却报警"。',
+      bEmoji:'🤲', bLabel:'先倾听+评估风险+共同制定安全计划', aDesc:'不挂断电话，陪着他同时联系支援', bFeedback:'你安静地听他倾诉了40分钟，同时悄悄让同事联系了社区急救。最后他说"谢谢你还在这里"。危机干预不是在"报警"和"不报警"中选，而是"边陪边报"。' },
+    { sceneName:'🎭 团体室', title:'家庭咨询的僵局', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'一家三口坐在咨询室里，父母互相指责，孩子在中间缩成一团。气氛越来越紧张，快要不欢而散——',
+      aEmoji:'⏸️', aLabel:'叫停争吵，分别单独谈话', aDesc:'分开谈能避免互相攻击', aFeedback:'分开确实平和了，但一家人不知道如何面对面沟通。家庭咨询的核心是让他们看到彼此之间的互动模式——分开就看不到了。',
+      bEmoji:'🪞', bLabel:'做一面"镜子"——反馈你的观察', aDesc:'描述你看到的行为模式而非评判', bFeedback:'你说"我发现每次妈妈说话，爸爸就会摇头，然后孩子开始咬指甲"。一家人愣住了——他们从没注意过自己的互动模式。觉察是改变的第一步。' },
+    { sceneName:'💔 咨询室', title:'来访者的愤怒', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'一个长期来访的来访者突然对你发火——"这些咨询根本没用！你根本帮不了我！"——',
+      aEmoji:'🛡️', aLabel:'理性解释咨询需要时间', aDesc:'用专业理论说明治疗进程', aFeedback:'你说了一大段专业解释，对方更愤怒了。当一个人情绪激动时，道理是听不进去的——大脑的"理智区"被"情绪区"劫持了。',
+      bEmoji:'🤗', bLabel:'先接纳情绪——"你说得对"', aDesc:'不防御，先让情绪被看见', bFeedback:'你平静地说"你说得对，这段时间确实进展很慢，我理解你的着急。"对方的愤怒逐渐消退，眼泪出来了——愤怒背后往往是没能说出口的失望和悲伤。咨询师的"不防御"才能让来访者感到安全。' },
+    { sceneName:'🔐 伦理困境', title:'保密的边界', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'来访者透露他在考试中作弊了，并计划下次继续。学校若有作弊记录会取消他的奖学金。他要求保密——',
+      aEmoji:'🤐', aLabel:'严格保密，尊重信任', aDesc:'咨询关系建立在保密基础上', aFeedback:'这次保守了秘密，但来访者的作弊行为没有改变。保密是原则，但保密的前提是不伤害自己或他人——有时候，帮助来访者面对后果也是咨询的一部分。',
+      bEmoji:'🔍', bLabel:'探索作弊背后的原因', aDesc:'一起讨论为什么需要作弊、有什么替代方案', bFeedback:'通过深入对话，发现他是因为家庭压力过大害怕失败。你帮他制定了学习计划和坦诚沟通的建议。他没再作弊——不是因为害怕被发现，而是找到了更好的方法。治愈行为的最好方法不是惩罚，而是找到行为背后的原因。' },
+    { sceneName:'☕ 督导室', title:'自己也累了', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'你已经连续接待了多个来访者，感到身心疲惫。下午还有一个需要深度支持的来访者等着——',
+      aEmoji:'💪', aLabel:'硬撑着继续接诊', aDesc:'来访者需要我，不能让她失望', aFeedback:'你撑下来了，但那次咨询你发现自己走神了3次，没能给到最好的支持。咨询师也是人——疲惫的咨询师帮不了任何人。',
+      bEmoji:'🧘', bLabel:'和督导沟通后调整状态', aDesc:'花20分钟休息、深呼吸、调整心态', bFeedback:'你短暂休息、喝了水、做了几个深呼吸，和督导讨论了案例。调整后思维清晰了很多，来访者感受到的是更专注的你。照顾自己也是专业的一部分。' },
+    { sceneName:'🔮 咨询室', title:'来访者的选择', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'即将毕业的大学生来访者面临选择——去大公司还是回老家做自己喜欢的小事业。他说"老师你帮我决定吧"——',
+      aEmoji:'➡️', aLabel:'分析两条路各自的利弊', aDesc:'用专业框架帮来访者看清选项', aFeedback:'分析很清晰但来访者走的时候更迷茫了。有时候分析越多，越难做决定——因为选择不是靠"算"出来的。',
+      bEmoji:'🪞', bLabel:'引导他发现自己心中的答案', aDesc:'不做分析，而是问"哪种生活让你眼睛发光"', bFeedback:'来访者沉默了半分钟，然后说"做选择时我一直没问过自己想要什么——都在想别人希望我怎么样。"第二天他决定回老家创业，几年后做得很好。咨询师的使命不是帮人做选择，而是帮人听见自己内心的声音。' },
+    { sceneName:'🌈 最后咨询', title:'道别与成长', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'来访者经过一年的咨询，决定结束咨询了。他问"老师我以后想你了能回来看看吗"——你如何为这段关系画上句号？',
+      aEmoji:'🚪', aLabel:'保持专业边界', aDesc:'咨询结束就是结束，不建议保持联系', aFeedback:'虽然专业上没错，但这个过于"冷"的告别可能让来访者觉得被推开。结束并不意味着抹去一段真实的关系。',
+      bEmoji:'💝', bLabel:'肯定成长+保持开放态度', aDesc:'恭喜你的成长，需要时我的门永远为你开着', bFeedback:'你说："看到你从第一次来的时候低着头，到现在能抬头笑着说话——你自己走了最远的那段路，我只是陪在你身边。"好的告别不是切断连接，而是相信对方已经可以独自前行了。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京大学心理学系实验室',location:'北京',desc:'参观心理学实验设备，了解大脑和情绪的科学',url:'https://www.psy.pku.edu.cn/'},
+      {name:'北京心理健康体验馆',location:'北京',desc:'用互动体验了解心理健康知识，学习情绪管理',url:'https://www.bjjsws.gov.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年心理探索工作坊',location:'北京',desc:'用游戏的方式学习倾听和共情技巧，模拟迷你咨询场景',url:'https://www.bjcyc.com.cn/'},
+      {name:'北京学校心理社团',location:'北京',desc:'参与朋辈心理辅导培训，学习帮助同学缓解压力',url:'https://www.bjedu.cn/'},
+    ],
+    books:[
+      {name:'《蛤蟆先生去看心理医生》',desc:'一只蛤蟆去做心理咨询的故事，用童话形式传达心理学智慧'},
+      {name:'《学会提问》',desc:'学习用苏格拉底式提问帮助自己和他人思考'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🗻',title:'人的心理像冰山',desc:'我们看到的语言和行为只是"水面上的一小部分"，大部分想法、感受、潜意识都藏在"水面下"。心理咨询师的工作就是陪人潜入水下，探索那些看不见的部分。'},
+    {emoji:'🪞',title:'倾听是最高级的帮助',desc:'研究发现，当一个人被真正倾听和理解时，大脑中的压力反应会明显降低。有时候你不需要"做什么"——只要你真的"在听"，就有了疗愈的效果。'},
+    {emoji:'🌱',title:'每个人都有自我修复的力量',desc:'心理咨询师不去"治好"一个人——而是相信每个人内心都有成长的力量。就像一棵植物，给它阳光和土壤，它会自己向上生长。咨询师就是那个浇水的人。'},
+  ],
+},
+
+artist: {
+  id:'artist', name:'艺术家', emoji:'🎨', tagline:'用无限的创意让世界变得更美',
+  field:'文化艺术', funFact:'梵高一生画了约2100幅作品，但在世时只卖出1幅。今天他的画价值数亿美元——艺术的价值往往需要时间来发现🎨',
+  intro:'艺术家是用画笔、音乐、雕塑、影像等表达思想和情感的人。他们用独特的眼光发现生活中别人看不见的美，用作品打动人、启发人、改变世界——是"世界的审美官"。',
+  timeline:[
+    {era:'古代',emoji:'🖼️',text:'古代艺术家在洞穴墙壁上画野兽，在陶器上绘花纹。达芬奇画出神秘的《蒙娜丽莎》——500年后的今天人们还在研究她的微笑。'},
+    {era:'现在',emoji:'🎭',text:'艺术不再只是画布和石头——数字艺术、装置艺术、行为艺术……艺术家用一切可能的方式表达自己。'},
+    {era:'未来',emoji:'🤖',text:'AI可以模仿任何风格，但真正的创造力——把情感注入作品——只有人能做到。未来的艺术家会用科技当画笔，画出前所未有的世界。'},
+  ],
+  abilities:[
+    {name:'敏锐的观察力',emoji:'👁️',subject:'美术',def:'能看到常人忽略的色彩、光影、形状，把平凡变成不平凡。'},
+    {name:'丰沛的想象力',emoji:'💭',subject:'语文·艺术',def:'脑海中能构思出从未存在过的画面、故事、世界。'},
+    {name:'坚持的毅力',emoji:'💪',subject:'体育·心理',def:'一幅作品可能要画几百小时，反复修改直到满意。'},
+    {name:'开放的思维',emoji:'🌈',subject:'社会·哲学',def:'不满足于"正确答案"，永远在问"还能是什么样"。'},
+  ],
+  workScenes:[
+    {time:'🌅 清晨',title:'写生采风',desc:'去户外捕捉光影，画下灵感',emoji:'🌿'},
+    {time:'🎨 上午',title:'创作时间',desc:'在画室/工作室专注创作',emoji:'🖌️'},
+    {time:'📖 下午',title:'学习研究',desc:'看展览、读书、研究新技法',emoji:'📚'},
+    {time:'🌟 夜晚',title:'展出交流',desc:'参加展览，和观众分享作品',emoji:'🎭'},
+  ],
+  figures:[
+    {name:'达芬奇',title:'文艺复兴的天才',emoji:'🧔',story:'达芬奇不仅画了《蒙娜丽莎》，他还是科学家、发明家、解剖学家——他设计了飞行器、研究了人体构造，把艺术和科学完美结合。'},
+    {name:'齐白石',title:'从木匠到大画家',emoji:'🇨🇳',story:'齐白石年轻时是个木匠，27岁才开始学画。他画虾画了一辈子——为了画好虾，他在家里养虾，日夜观察。他说"学我者生，似我者死"——学精神而不是模仿。'},
+  ],
+  scenes: [
+    { sceneName:'🎨 画室', title:'创作瓶颈', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'对着空白画布已经一小时了，什么也画不出来。老师说"必须明天交作品"。灵感似乎枯竭了——',
+      aEmoji:'🖌️', aLabel:'硬着头皮随便画点什么', aDesc:'先画再说，也许画着画着就有灵感了', aFeedback:'画了一些但自己都不满意——僵硬、没有灵魂。艺术不是流水线，"硬画"出来的东西一眼就能看出来。',
+      bEmoji:'🚶', bLabel:'放下画笔出去走走', aDesc:'灵感来自于生活，不是来自于"想"', bFeedback:'你去了菜市场，被一个卖红薯老人的笑脸打动——回来后一口气画出了自己最喜欢的作品。最好的灵感往往在你"不找"的时候自己出现。' },
+    { sceneName:'🏛️ 画廊', title:'展览主题选择', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'学校要办展览，你可以画大家都喜欢的"可爱风格"，或者尝试你感兴趣的"环保主题"——不过环保主题可能不太受欢迎...',
+      aEmoji:'😊', aLabel:'画大家喜欢的可爱风格', aDesc:'保证有人看、有人夸', aFeedback:'展出后确实受欢迎，但你心里知道这不是自己真正想表达的。做"大家喜欢"的作品，久了会忘了自己。',
+      bEmoji:'🌍', bLabel:'坚持表达你关心的环保', aDesc:'哪怕看的人少，但这是你真实的声音', bFeedback:'你用废弃塑料瓶做了装置艺术——起初只有几个人看，但后来被本地媒体报道，引发了全校对减塑的讨论。艺术的力量不在于讨人喜欢，而在于让人思考。' },
+    { sceneName:'💻 数字工作室', title:'传统vs数字', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'同学都在用iPad画画、用AI生成草图。有人笑你还用纸和笔——"太慢了、太土了"。你开始动摇——',
+      aEmoji:'📱', aLabel:'转学数字绘画', aDesc:'跟上时代，数字工具效率高很多', aFeedback:'你很快掌握了数字绘画，但总觉得作品少了温度。科技是工具——但纸和笔给你的触感、专注感，数字永远无法替代。',
+      bEmoji:'✏️', bLabel:'坚持手绘但也学数字', aDesc:'不放弃传统，同时了解新工具', bFeedback:'你把两者融合——先手绘草图再数字上色。创造了一种独特的"手工温度+数字精致"的风格。真正的创造力不在于选A还是选B，而在于如何把两者用得更好。' },
+    { sceneName:'💬 评审现场', title:'批评与坚持', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'一个评委公开批评你的作品——"画风太幼稚了，没有基本功。"同学们面面相觑——',
+      aEmoji:'😔', aLabel:'接受批评改学"基本功"', aDesc:'多练素描和写实，画得更"像"', aFeedback:'练了几个月基本功，技术是进步了，但你的画越来越像教科书——失去了自己的独特性。基本功是为表达服务的，不是用来限制表达的。',
+      bEmoji:'🔥', bLabel:'保持风格同时补不足', aDesc:'"幼稚"可能是你的风格，坚持并完善它', bFeedback:'你仔细思考了批评中合理的部分，保留了独特风格但更注重构图和色彩。后来有个插画师说"你的画有童心，这是教不出来的"。把批评当镜子——照出问题但不否定自己。' },
+    { sceneName:'🤝 商业合作', title:'艺术还是商业', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'有人出钱请你画宣传海报，但要求"艳一点、字大一点、风格喜庆一点"——做这个会远远偏离你的艺术追求，但能给工作室换台新设备——',
+      aEmoji:'💰', aLabel:'接下商业单', aDesc:'边赚钱边做自己想做的东西', aFeedback:'你完成任务拿到了钱，但朋友看到说"这不是你的水平"。商业和艺术可以并行——但要清楚哪一个是在实现自我、哪一个只是为了生存。',
+      bEmoji:'🎯', bLabel:'婉拒并推荐其他画风匹配的伙伴', aDesc:'不消耗自己的品牌，帮了客户也帮了同行', bFeedback:'客户感谢你的推荐，那位伙伴也获得了机会。更棒的是——客户后来又有个更符合你风格的项目直接找了你。有时候说"不"比说"是"更需要勇气，也更值得。' },
+    { sceneName:'📱 社交媒体', title:'作品没人看', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'你把自己很满意的一幅作品发到网上——点赞寥寥，而一个搞笑视频有了百万播放。你开始怀疑做艺术有意义吗——',
+      aEmoji:'😤', aLabel:'也去画一些"容易火"的题材', aDesc:'流量为王，先吸引眼球再说', aFeedback:'你画了几个热点题材，播放量确实上来了，但评论里有人说"你以前的作品更有灵魂，现在好商业"。你为了流量失去了更珍贵的东西——独特性。',
+      bEmoji:'🖼️', bLabel:'坚持创作+多平台、多方式分享', aDesc:'好的作品总会遇到懂它的人', bFeedback:'你开始拍创作过程的视频、写作品背后的故事——真诚的内容慢慢吸引了一小群真正欣赏你艺术的人。他们虽然少，但每一个都是真爱。艺术不需要所有人喜欢，只需要被对的人看见。' },
+    { sceneName:'🎓 毕业季', title:'职业方向选择', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'快毕业了，家里希望你考教师编"稳定"，朋友建议你做设计"赚钱"，但你只想专心画画——',
+      aEmoji:'🏫', aLabel:'听家人的考教师编', aDesc:'稳定工作，业余时间画画', aFeedback:'你考上了编制，但发现全职工作占用了大量精力，业余画画的时间远不如想象中多。妥协没有对错——但要知道自己放弃了什么。',
+      bEmoji:'🎨', bLabel:'给自己一个尝试期', aDesc:'全力以赴做2年，不行再调整', bFeedback:'你用2年时间办展、接稿、做艺术项目——虽然收入不稳定但作品积累和知名度在增长。第3年有人专程来找你合作。给自己一个机会，不留遗憾——这是最大的勇气。' },
+    { sceneName:'🏆 颁奖现场', title:'成功之后', bg:'linear-gradient(180deg, #1a0f08 0%, #3d2010 35%, #1a1a3e 100%)', accent:'#ff9800',
+      dialogText:'你得了奖，大家开始叫你"天才"。但你清楚自己画了多少张不满意的草图。面对"天才"的标签——',
+      aEmoji:'🏆', aLabel:'享受天才的美誉', aDesc:'反正我确实有天赋，受之无愧', aFeedback:'光环很耀眼，但它会让人不敢冒险——怕下一个作品不够"天才"就不做了。被"天才"绑架的艺术家，往往再也不敢画"不完美的作品"。',
+      bEmoji:'🫣', bLabel:'告诉大家你失败过无数次', aDesc:'让大家看到"天才"背后的汗水和笨功夫', bFeedback:'你展示了被扔掉的几百张草图。许多学画的孩子说"原来大神也画过这么差的——我又有信心了！"真正的艺术家不制造神话，他让别人看到：你也可以。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中国美术馆',location:'北京',desc:'中国最大的美术馆，收藏近现代艺术珍品，定期有儿童艺术导览',url:'https://www.namoc.org/'},
+      {name:'798艺术区',location:'北京',desc:'体验装置艺术、新媒体艺术等当代创意表达，众多画廊免费参观',url:'https://www.798art.org/'},
+    ],
+    practices:[
+      {name:'798艺术区青少年美术工作坊',location:'北京',desc:'户外写生、陶艺、版画等多种艺术形式体验',url:'https://www.798art.org/'},
+      {name:'中国美术馆"小小导览员"',location:'北京',desc:'经过培训后为参观者讲解艺术作品，锻炼表达和审美',url:'https://www.namoc.org/'},
+    ],
+    books:[
+      {name:'《艺术原来可以这样看》',desc:'用趣味问答带你看懂世界名画，适合儿童的艺术启蒙书'},
+      {name:'《点》',desc:'一个孩子从一个点开始，发现创造力的绘本故事'},
+    ],
+  },
+  discoveries: [
+    {emoji:'👁️',title:'艺术家看世界的方式不一样',desc:'科学家发现，受过训练的艺术家比普通人能分辨多10倍的色调变化——不是眼睛不同，而是他们学会了"真正地看"而不是"扫一眼"。你也可以训练这种能力！'},
+    {emoji:'🎭',title:'没有"不会画画"这件事',desc:'毕加索说"每个孩子都是艺术家，问题在于长大后如何保持。"你小时候画的那些"乱七八糟"的东西，其实充满了成年人学不来的想象力——那不是"不会画"，是"敢画"。'},
+    {emoji:'🌍',title:'艺术能改变世界',desc:'毕加索的《格尔尼卡》让全世界看到了战争的残酷，推动和平运动。一幅画、一首歌、一场表演，真的可以让世界变好一点点——这就是艺术的力量。'},
+  ],
+},
+
+craftsman: {
+  id:'craftsman', name:'手艺人', emoji:'🔨', tagline:'用一双手，把时间打磨成艺术品',
+  field:'传统工艺/制造业', funFact:'一把真正的紫砂壶需要拍打超过10万次才能成型——手艺人的功夫，藏在你看不见的时间里🔨',
+  intro:'手艺人是用手工技艺制作物品的人——木匠做家具、陶艺师制瓷器、皮匠做皮具。他们把普通的材料变成有温度的作品，用双手传承着千百年的技艺——是"时间的雕刻师"。',
+  timeline:[
+    {era:'古代',emoji:'🏺',text:'古代手艺人制作了青铜器、陶瓷、丝绸——每一件都是人类文明的瑰宝。景德镇的瓷器曾经沿着丝绸之路走遍世界。'},
+    {era:'现在',emoji:'🪚',text:'如今手艺人结合传统技艺和现代设计，让手工制品在机器时代依然闪耀。越来越多年轻人开始学习木工、陶艺、金工。'},
+    {era:'未来',emoji:'💡',text:'机器可以批量生产，但手工的温度永远无法复制。未来最珍贵的不是"完美"，而是每一件作品里的心意和时间。'},
+  ],
+  abilities:[
+    {name:'极致的耐心',emoji:'🧘',subject:'体育·心理',def:'一件作品需要几周甚至几个月——不急不躁，专注每一个细节。'},
+    {name:'灵巧的双手',emoji:'🤲',subject:'物理·工程',def:'精确控制力度和角度，在毫米之间展现技艺。'},
+    {name:'材料的理解',emoji:'🪵',subject:'化学·物理',def:'木头、陶土、金属——每种材料都有自己的"性格"，要学会和它们对话。'},
+    {name:'审美的眼光',emoji:'👁️',subject:'美术·设计',def:'形与色的平衡、比例与节奏——用眼睛和手感判断"对了"还是"不对"。'},
+  ],
+  workScenes:[
+    {time:'🌅 清晨',title:'选材备料',desc:'挑选合适的材料，检查质地和纹理',emoji:'🪵'},
+    {time:'🔨 上午',title:'专心制作',desc:'打磨、雕刻、组装的专注时光',emoji:'✋'},
+    {time:'🖌️ 下午',title:'上色精修',desc:'细节修饰，让作品更加完美',emoji:'🎨'},
+    {time:'📦 傍晚',title:'展示交流',desc:'把作品展示给顾客或分享给同行',emoji:'✨'},
+  ],
+  figures:[
+    {name:'鲁班',title:'中国工匠祖师',emoji:'🇨🇳',story:'鲁班是春秋时期的能工巧匠，他发明了锯子、刨子、墨斗——很多木匠工具至今还在用。他的名字已经成为中国工匠精神的象征。"班门弄斧"就是说在行家面前卖弄。'},
+    {name:'李宗盛',title:'吉他制琴师',emoji:'🎸',story:'这位传奇音乐人50岁开始学做吉他，花了几百小时打磨一把琴。他说"专注做点东西，至少对得起光阴岁月"。他用做吉他的方式告诉世界：手艺是一种态度。'},
+  ],
+  scenes: [
+    { sceneName:'🪵 木工坊', title:'木材的选择', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 35%, #16213e 100%)', accent:'#ffb74d',
+      dialogText:'承接了一个重要订单——客户要一张能用30年的餐桌。店里有两块木料：A是老料，纹理美但有一些小瑕疵；B是新料，干净完美但质地偏软——',
+      aEmoji:'🪵', aLabel:'选新料，干净完美', aDesc:'客户看到瑕疵会不满意的', aFeedback:'餐桌做出来很漂亮，但2年后桌面开始出现凹陷。选材料不能只看"表面"——新料没经过时间考验，质地不够。好手艺从选材开始。',
+      bEmoji:'🔍', bLabel:'选老料+把瑕疵变特色', aDesc:'老料质地好，瑕疵可以巧妙融入设计', bFeedback:'你用环氧树脂把木料的瑕疵处填成了一条"银河"，客户看到成品惊呼"这比普通的餐桌漂亮多了"。把手艺人的眼光用在设计上——不隐藏缺点，而是把它变成特点。' },
+    { sceneName:'🏺 古董修复', title:'修复还是保留', bg:'linear-gradient(180deg, #1a1508 0%, #2d2810 35%, #16213e 100%)', accent:'#81c784',
+      dialogText:'有人拿着一件祖传瓷碗来找你修复——碗缺了一个口。你可以"修旧如新"做得看不出痕迹，或者用日本金缮技法用金粉突出裂痕——',
+      aEmoji:'✨', aLabel:'修旧如新，看不出坏过', aDesc:'完美的修复是最好的手艺', aFeedback:'修得很完美，但老奶奶看了说"这不是原来的碗了"。看不见的伤疤变成了陌生的东西——有时候"新"不等于"好"。',
+      bEmoji:'💛', bLabel:'金缮修复——用金粉勾出裂痕', aDesc:'让裂痕成为故事的一部分', bFeedback:'金色的裂痕让老碗变成了独一无二的艺术品。老奶奶眼眶湿润说"我妈妈摔这个碗的时候我5岁——现在这个金线让那段记忆也变珍贵了"。手艺的最高境界不是抹去痕迹，而是让经历成为美。' },
+    { sceneName:'📐 工作台', title:'标准vs创新', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'一个老客户想要"和别人不一样的"定制家具，但你的师傅说"祖师爷传下来的规矩不能改"。创新可能会被同行说"不尊重传统"——',
+      aEmoji:'📏', aLabel:'按传统规矩做', aDesc:'传承了几百年的方法不会错', aFeedback:'成品规规矩矩，但客户说"和网上买的没什么区别"。传统是根基，但如果只是复制，手艺就失去了生命力。',
+      bEmoji:'💡', bLabel:'在传统基础上融入新想法', aDesc:'尊重传统的精神，创新表达方式', bFeedback:'你用传统榫卯结构但做了现代简约的造型——既有传统结构之美又有现代感。客户太喜欢了，又介绍了好几个朋友。传统不是死的——每一代手艺人都在为传统添上新的一笔。' },
+    { sceneName:'⚡ 工坊', title:'工具损坏', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'关键任务进行中——你的核心工具突然坏了。买新工具要等3天，但交货期就是明天。手边有一些不太理想的替代工具——',
+      aEmoji:'⏰', aLabel:'和客户沟通延期交货', aDesc:'坦诚沟通，不能凑合着做坏作品', aFeedback:'客户虽然勉强同意延期，但有些不高兴。有时候沟通是正确的——但不能成为逃避问题的借口。',
+      bEmoji:'🔧', bLabel:'用替代工具+调整工艺', aDesc:'真正的工匠不该被工具限制', bFeedback:'你用替代工具调整了工艺方法，虽然多花了3小时但按时完成了。老师傅说"手艺在手上，不在工具上"。工具是帮手——但真正的手艺人到哪都能做出好东西。' },
+    { sceneName:'💬 市集', title:'价格与价值', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'集市上，顾客说"网上一个杯子才30块，你手做的为什么要卖300？不就是个杯子吗？"——',
+      aEmoji:'😤', aLabel:'降价，卖出去比较重要', aDesc:'反正不做也浪费了时间', aFeedback:'降价卖出去了，但心里不舒服。而且以后顾客会觉得"上次才卖100，这次凭什么卖300"——降价容易涨价难。',
+      bEmoji:'🗣️', bLabel:'耐心展示制作过程+材料来历', aDesc:'让顾客理解手工的价值', bFeedback:'你拿出手机展示了从泥巴到杯子的全过程的照片，讲了陶土产地的故事。顾客不仅买了，还说"下次带朋友来"。教育你的顾客，而不是迁就你的价格。' },
+    { sceneName:'👨‍🏫 工作室', title:'带徒弟的困境', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'招了个徒弟学了半年，基本功还不扎实就想接大活——说"现在年轻人谁还练3年基本功啊"。你犹豫要不要让他提前上手——',
+      aEmoji:'✅', aLabel:'让他试试，实践是最好的学习', aDesc:'干中学，错了自然知道基本功的重要', aFeedback:'他做坏了客户的材料，不仅赔钱还砸了口碑。有些错误可以犯——但在客户面前犯错，成本太高了。',
+      bEmoji:'📋', bLabel:'坚持基本功过关再上手', aDesc:'定标准——通过基本功考核才接活', bFeedback:'徒弟心里不服但咬牙练了半年，基本功扎实后第一个活就做出了高水平。他后来感谢你"要不是师父当时逼我，我永远不知道细节的重要"。严师出高徒不是空话。' },
+    { sceneName:'🏭 工厂', title:'机器与手工的较量', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'工厂老板展示一台设备——"这台机器1小时能做出你1个月的量，而且一模一样。"手艺人存在的意义是什么？',
+      aEmoji:'🤖', aLabel:'引进机器提高产量', aDesc:'效率是趋势，传统手艺要现代化', aFeedback:'产量确实高了，但老客户说"和店里买的没区别"。当手工失去了手工感，你就失去了唯一不可替代的东西。',
+      bEmoji:'✋', bLabel:'坚持手工的核心价值', aDesc:'机器做"对"的东西，我做"唯一"的东西', bFeedback:'你继续用手工做定制作品，同时在社交媒体分享制作过程。越来越多人愿意为"独一无二"买单。机器可以复制完美，但不能复制灵魂——这就是手艺人的不可替代性。' },
+    { sceneName:'🏆 技艺展', title:'青黄不接', bg:'linear-gradient(180deg, #1a0f08 0%, #3d2010 35%, #1a1a3e 100%)', accent:'#ff9800',
+      dialogText:'你的手艺被列入"非遗"——但同一技艺的老师傅都老了，年轻人不愿意学。你的手艺将失传——',
+      aEmoji:'😞', aLabel:'顺其自然，消失就消失吧', aDesc:'时代在变，有些东西该走了', aFeedback:'可你心里知道——这门手艺里有几百年的智慧和美学。消失了，就再也没有了。',
+      bEmoji:'📱', bLabel:'拍视频+开体验课+走进学校', aDesc:'用年轻人喜欢的方式传承', bFeedback:'你把制作过程拍成短视频，开了周末体验课，去学校给孩子们演示——很多年轻人第一次看到手工制作的魅力，主动来拜师。传承不是"等"有人来学——是走进他们的世界去邀请。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京南锣鼓巷手艺街区',location:'北京',desc:'探访非遗传承人工作室，看木工、皮具、陶艺、剪纸如何诞生',url:'https://www.beijing.gov.cn/'},
+      {name:'中国工艺美术馆',location:'北京',desc:'中国最大的工艺美术殿堂，涵盖陶瓷、织绣、漆器、金属工艺等',url:'https://www.cacm.org.cn/'},
+    ],
+    practices:[
+      {name:'北京亲子木工体验课',location:'北京',desc:'半天时间制作一把小木勺或小木马，体验木工的基本乐趣',url:'https://www.diycraft.cn/'},
+      {name:'中国工艺美术馆·陶瓷拉坯班',location:'北京',desc:'学习拉坯、上釉、烧制，完成属于自己的陶器',url:'https://www.cacm.org.cn/'},
+    ],
+    books:[
+      {name:'《鲁班书》少儿版',desc:'图文讲述中国古代工匠大师鲁班的发明和智慧'},
+      {name:'《万物有灵：手工的故事》',desc:'讲述世界各地手艺人的真实故事，让孩子看到手工艺的魅力'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🕰️',title:'慢工出细活有科学道理',desc:'研究发现，当人用手工制作物品时，大脑会释放出更多的多巴胺——一种让人感到快乐和满足的化学物质。所以做手工让人幸福，不只是结果，更是过程！'},
+    {emoji:'🧩',title:'榫卯结构不用一颗钉子',desc:'中国古代木结构完全靠榫卯——木头的凹凸咬合——就能让房子屹立几百年不倒。故宫就是用这种结构建的，经历了600多年、200多次地震依然坚固！'},
+    {emoji:'🌟',title:'你身边的每件东西都有手艺人的功劳',desc:'你坐的椅子、用的杯子、穿的衣服——在流水线出现之前，每一件都是由某个手艺人一件件做出来的。下次用东西时想想：是谁为你做的？'},
+  ],
+},
+
+lawyer: {
+  id:'lawyer', name:'律师', emoji:'⚖️', tagline:'以法律为剑，为公平正义而战',
+  field:'法律', funFact:'中国有超过70万律师。一部法律少则几万字，多则几十万字，律师要把这些"游戏规则"熟记于心⚖️',
+  intro:'律师是帮助人们用法律解决问题、维护权利的专业人士。他们在法庭上为当事人辩护，在法庭外起草合同、调解纠纷——是"秩序的守护者"和"公平的代言人"。',
+  timeline:[
+    {era:'古代',emoji:'📜',text:'古代有"讼师"帮人写状纸打官司。传说中包拯是铁面无私的法官，保护百姓不受欺压。"天子犯法与庶民同罪"是古人的法治理想。'},
+    {era:'现在',emoji:'🏛️',text:'现代律师在法庭上用证据和法律条文为当事人辩护。刑事律师帮助查明真相，民事律师调解纠纷——律师是现代社会的"公平卫士"。'},
+    {era:'未来',emoji:'🤖',text:'AI可以检索法规、分析案例，但法庭辩论的温度、对人性的洞察——机器永远替代不了。未来的律师是"科技+人性"的结合体。'},
+  ],
+  abilities:[
+    {name:'严密的逻辑',emoji:'🧩',subject:'数学·逻辑',def:'像搭积木一样用证据和法律条文构建有力的论证。'},
+    {name:'出色的口才',emoji:'🗣️',subject:'语文·辩论',def:'用精准的语言在法庭上陈述观点，每个词都有分量。'},
+    {name:'细致的阅读力',emoji:'🔍',subject:'语文',def:'在海量材料中发现关键证据，一个细节就可能扭转案情。'},
+    {name:'冷静的判断',emoji:'⚖️',subject:'社会·心理',def:'在压力下保持冷静，做出最有利的策略选择。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'案头准备',desc:'研读案卷、研究法律条文和判例',emoji:'📚'},
+    {time:'🏛️ 上午',title:'出庭辩护',desc:'在法庭上陈述观点、质询证人',emoji:'⚖️'},
+    {time:'🤝 下午',title:'会见当事人',desc:'和委托人沟通，制定策略',emoji:'👥'},
+    {time:'✍️ 夜晚',title:'撰写文书',desc:'起草法律意见书、辩护词',emoji:'📝'},
+  ],
+  figures:[
+    {name:'丹诺',title:'最伟大的辩护律师',emoji:'🎙️',story:'100年前，美国律师丹诺用精彩的辩护挽救了无数被判处死刑的人。他说"我从不杀人，我只救人"。他证明了律师的口才和智慧可以改变人的命运。'},
+    {name:'梅汝璈',title:'东京审判中国法官',emoji:'🇨🇳',story:'二战后，梅汝璈代表中国参加东京审判，用法律的力量让侵略者受到了正义的审判。他在法庭上说"我不是来复仇的，我是来维护正义的。"'},
+  ],
+  scenes: [
+    { sceneName:'🏛️ 律所', title:'关键证据的取舍', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'研究案子发现一份证据——用它能大幅提高胜诉率，但证据的来源有点"灰色地带"（不是非法，但不太光彩）。诉讼时效快到了——',
+      aEmoji:'📎', aLabel:'提交这份证据', aDesc:'不提交就是对不起委托人', aFeedback:'证据被法庭采纳，但对方抓住"来源争议"穷追猛打，焦点从事实变成了程序。不光彩的证据可能帮了案子但毁了你的公信力。',
+      bEmoji:'🔍', bLabel:'放弃这份证据找替代方案', aDesc:'宁可多花功夫，不走灰色地带', bFeedback:'你花了3天找到了另一份无可争议的证据，虽然胜诉概率没有用那份高，但赢得堂堂正正。律师的声誉是一辈子的事——赢一个案子输了名声，不值得。' },
+    { sceneName:'⚡ 拘留所', title:'沉默的委托人', bg:'linear-gradient(180deg, #152525 0%, #1a3535 35%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'你的委托人是未成年人，因涉嫌参与团伙斗殴被拘留。他一直沉默——但你知道如果不说出同伙，作为"主犯"可能面临更重处罚。时间不多了——',
+      aEmoji:'🤐', aLabel:'尊重沉默权，能做多少做多少', aDesc:'律师不该诱导委托人说话', aFeedback:'由于缺少关键情况，案件被从重处理。法律给了你辩护的武器，但当事人自己卡住了你的手。',
+      bEmoji:'💬', bLabel:'耐心建立信任再了解全貌', aDesc:'先确保他信任你，而非逼他交代', bFeedback:'你花一小时只聊他喜欢的事，他终于开口——真相是他只是旁观者、被人栽赃。你找到了监控录像证明了他的清白。信任是律师的第一工具——没有信任就没有辩护。' },
+    { sceneName:'💼 谈判室', title:'和解还是诉讼', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'你的委托人被公司拖欠工资，对方现在提出"和解"——赔偿70%但马上到账。如果打官司可能拿100%，但要折腾一年——',
+      aEmoji:'🤝', aLabel:'建议接受和解', aDesc:'委托人急需用钱，70%先落袋', aFeedback:'钱很快到账帮了大忙。委托人感谢你"帮我想清楚了——争一口气有时候没有吃饱饭重要"。律师的责任不只是"打赢官司"，更是帮委托人做出最适合的决定。',
+      bEmoji:'⚔️', bLabel:'坚持诉讼争取100%', aDesc:'这种案子稳赢，不能便宜了对方', aFeedback:'案子的确赢了，但委托人被折腾了一年后"赢了官司丢了工作"。有时候，"最好的法律结果"不等于"最好的生活结果"。律师要赢的是委托人的人生，不只是案子。' },
+    { sceneName:'🗣️ 法庭', title:'质询证人的策略', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'庭审中，对方证人正在说谎——你知道他在说谎，但他是强硬的成年人，你的委托人是个胆怯的小店主——',
+      aEmoji:'🔥', aLabel:'步步紧逼揭穿漏洞', aDesc:'用交叉质询让对方自相矛盾', aFeedback:'证人被逼到死角，但法官觉得你"过于攻击性"，反而影响了陪审员对你的信任。法庭上的气势很重要——过犹不及。',
+      bEmoji:'🎯', bLabel:'冷静让对方自己暴露', aDesc:'用温和提问引诱对方说过头话', bFeedback:'你平静地一连串"只是确认"的问题，证人自己越说越多、露出了致命的矛盾。现场一片哗然。最好的辩护有时候不是"攻击"——是让对方自己打败自己。' },
+    { sceneName:'🤔 道德困境', title:'知道委托人犯罪了', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'你的委托人告诉了你他没告诉警方的犯罪细节。他已经委托你辩护了——作为律师，你不能揭发他，但他的罪行确实伤害了别人——',
+      aEmoji:'🤐', aLabel:'严格遵守保密义务', aDesc:'律师不是法官，辩护就是律师的职责', aFeedback:'你做了辩护，委托人被判了较轻的刑罚。但内心一直挣扎——律师的职业道德让每个人有权获得辩护，无论他们做了什么。这是法治的基石。',
+      bEmoji:'🙏', bLabel:'劝服委托人主动坦白', aDesc:'在合法范围内争取自首减刑', bFeedback:'委托人被你说服了，主动交代了更多情况，获得了自首减刑。你在保密义务和良心之间找到了第三条路——劝当事人走正道。' },
+    { sceneName:'📊 大型律所', title:'理想与现实', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'你做法律援助律师多年，收入低但帮了很多普通人。现在大律所给了三倍薪水——但是要做商业案件，离"穷人的律师"角色越来越远...',
+      aEmoji:'💰', aLabel:'接受高薪去大律所', aDesc:'赚了钱以后可以回来再做公益', aFeedback:'三年过去了，大律所的工作占据了全部时间，"以后再做公益"变成了永远的计划。钱赚到了但热情没了。',
+      bEmoji:'⚖️', bLabel:'留任法援+接受部分商业委托', aDesc:'用商业案件收入补贴法援', bFeedback:'你找到了一种平衡——做能赚钱的商业案件，同时保持法援案件量。钱少了但心是满的。最好的职业不是"选A或选B"——是找到适合自己的配比。' },
+    { sceneName:'📰 舆论风暴', title:'为"坏人"辩护', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'你接手了一个舆论争议很大的案件——为被指控的人辩护。网上骂声一片"你怎么帮这种人"，家人也劝你退掉——',
+      aEmoji:'🏃', aLabel:'退掉这个案子', aDesc:'做律师也要爱惜羽毛', aFeedback:'案子被别人接了，辩护很成功——你看着结果，心里五味杂陈。一个没人愿意辩护的人，最后证明判错了。如果所有律师都因为"他不像好人"就不辩护，那谁还相信法律？',
+      bEmoji:'🛡️', bLabel:'坚持辩护，向公众解释', aDesc:'向公众说明"为坏人辩护"才能保护"好人"', bFeedback:'你在庭上展现了精彩的辩护。虽然舆论仍不理解，但案后有人说"我原来觉得律师就是收钱办事——原来你们是在维护每个人都有的权利。"律师不是在保护"坏人"，是在保护"坏人也有权利获得辩护"这个原则。' },
+    { sceneName:'🏁 结案后', title:'胜诉还是正义', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'你赢了——程序上完美无缺。但走出法院你听到对方当事人蹲在墙角哭。他是过错方，但也是个可怜人。委托人兴高采烈——',
+      aEmoji:'🎉', aLabel:'庆祝职业胜利', aDesc:'我做了律师该做的事——赢了', aFeedback:'委托人说你是"最好的律师"。但你在夜里失眠——赢了一个案子，却感觉自己输了什么。',
+      bEmoji:'🤝', bLabel:'在胜诉后提供合法帮助', aDesc:'建议委托人在执行判决时给对方留有余地', bFeedback:'委托人听了你的建议，允许对方分期偿还。对方后来专程来道谢。法律可以让人输，但律师可以选择不让人彻底倒下。赢在法庭，也可以赢在人心。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中国法院博物馆',location:'北京',desc:'了解中国法治发展史，参观真实的法庭和法袍、法槌',url:'https://www.courtmuseum.cn/'},
+      {name:'北京市东城区人民法院开放日',location:'北京',desc:'走进真实法庭旁听案件，了解庭审流程',url:'https://www.bjcourt.gov.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年模拟法庭',location:'北京',desc:'扮演法官、律师、证人，完整模拟一场法庭审判',url:'https://www.bjcourt.gov.cn/'},
+      {name:'中国政法大学青少年辩论营',location:'北京',desc:'参加辩论赛，锻炼逻辑思维和口才',url:'https://www.cupl.edu.cn/'},
+    ],
+    books:[
+      {name:'《宪法能带给我们什么》少儿版',desc:'用故事和漫画讲解宪法规定的公民权利'},
+      {name:'《洞穴奇案》青少年版',desc:'一个虚构案例引发对法律与道德的深层思考'},
+    ],
+  },
+  discoveries: [
+    {emoji:'⚖️',title:'每个人都有权获得辩护',desc:'不管一个人做了什么，法律都给了他请律师为自己辩护的权利。这不是保护"坏人"——而是保护每个"可能被冤枉的好人"。今天你为别人辩护的权利斗争，就是在保护明天你自己的权利。'},
+    {emoji:'🔍',title:'一个案件背后是庞大的证据链',desc:'真实案件不像电视里那样靠"当庭翻供"——律师大部分时间都在看文件、找证据、研究判例。99%的精彩赢在庭外准备，只有1%在庭上展示。'},
+    {emoji:'📜',title:'法条每天都在增加',desc:'中国的法律法规加起来有几万条。好的律师不靠"全记住"——而靠"知道去哪儿找"。检索能力、逻辑推理、精准表达，才是律师的真正法宝。'},
+  ],
+},
+
+soldier: {
+  id:'soldier', name:'军人', emoji:'🎖️', tagline:'忠诚、勇敢、担当——以生命守护使命',
+  field:'国防军事', funFact:'中国人民解放军是世界上最庞大的军队之一。一个步兵的全套装备大约重25-35公斤——相当于每天背着一个10岁小孩在行动🎖️',
+  intro:'军人是保卫国家安全、维护和平的战士。他们在陆地、海洋、天空守护着祖国的疆土，在灾难来临时第一时间出现在最危险的地方——是"人民的守护神"。',
+  timeline:[
+    {era:'古代',emoji:'⚔️',text:'中国古代有孙武、岳飞这样的名将——不只会打仗，更懂得"不战而屈人之兵"的智慧。长城、烽火台是古代国防的见证。'},
+    {era:'现在',emoji:'🛡️',text:'现代军人拥有高科技装备——卫星导航、隐身战机、无人机。但"听党指挥、能打胜仗、作风优良"的核心从未改变。'},
+    {era:'未来',emoji:'🛰️',text:'未来战争可能在网络空间、太空展开。但最核心的武器永远是——勇敢的心和团队的默契。'},
+  ],
+  abilities:[
+    {name:'强健的体魄',emoji:'💪',subject:'体育',def:'每天高强度体能训练，在任何环境下都能保持战斗力。'},
+    {name:'团队协作',emoji:'🤝',subject:'团队·领导力',def:'军人不是在孤军奋战——班组的默契就是战斗力。'},
+    {name:'快速判断',emoji:'🧠',subject:'逻辑·战术',def:'战场上情况瞬息万变，在信息不完整时做最优决策。'},
+    {name:'钢铁意志',emoji:'🔥',subject:'心理素质',def:'面对极端环境不退缩，坚持到任务完成的那一刻。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'出操训练',desc:'跑步、队列、体能训练',emoji:'🏃'},
+    {time:'🎯 上午',title:'战术训练',desc:'射击、野外战术、团队协作',emoji:'🔫'},
+    {time:'📚 下午',title:'学习装备',desc:'学习武器技术、通讯设备、作战理论',emoji:'💻'},
+    {time:'🌙 夜晚',title:'站岗执勤',desc:'坚守哨位，守护营区和战友的安全',emoji:'🌙'},
+  ],
+  figures:[
+    {name:'雷锋',title:'普通一兵精神偶像',emoji:'⭐',story:'雷锋把自己比喻成一颗"螺丝钉"——虽然小，但在机器上发挥着不可缺少的作用。他用行动证明：伟大就藏在无数平凡的善举中。'},
+    {name:'杜富国',title:'排雷英雄',emoji:'🇨🇳',story:'在一次排雷任务中，他对战友说"你退后，让我来"。地雷爆炸了，他失去了双手和光明，但他说"我不后悔，因为战友安全了"。这就是军人的担当。'},
+  ],
+  scenes: [
+    { sceneName:'🏔️ 边境哨所', title:'异常信号', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 35%, #16213e 100%)', accent:'#66bb6a',
+      dialogText:'深夜值岗，红外探测器显示边境线附近有不明热源——可能只是野猪，也可能是非法越境者。按规定必须报告，但报告后如果是动物会显得自己大惊小怪——',
+      aEmoji:'📡', aLabel:'立即报告并按规程处置', aDesc:'宁可错报一百次，不能漏报一次', aFeedback:'报告后侦察组出动，发现确实是一群野猪。排长表扬了你"警惕性高"。边防无小事——每一次认真报告都在训练自己和系统的可靠性。',
+      bEmoji:'🤫', bLabel:'自己先去看看再说', aDesc:'确认了是真的再报告', aFeedback:'你一个人擅自离岗去查看——万一真是越境者，你一个人面临危险；同时哨位空了留下安全隐患。军人的纪律是为了保护自己——也为了不连累战友。' },
+    { sceneName:'🌊 洪灾前线', title:'洪水中救人', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'洪水冲进村庄，一个老人被困在屋顶。水流湍急——只能一个人游过去。刚来的新兵已经绑好安全绳准备出发，但你看到他的绳结系得有问题——',
+      aEmoji:'🏊', aLabel:'自己上，让新兵留守', aDesc:'我有经验，新兵在岸上更安全', aFeedback:'你成功救出了老人。但新兵永远没机会在实战中成长。军人不是超级英雄——保护战友成长也是一种责任。',
+      bEmoji:'🤝', bLabel:'帮他纠正绳结+做后备支持', aDesc:'让他上，我在最近距离提供支援', bFeedback:'你迅速帮他重系了绳结："相信你，我在这里守着。"新兵成功救援了老人，从此在班里更有信心。最好的领导不是替代队员——是让他们有能力完成任务。' },
+    { sceneName:'🔫 战术训练场', title:'比武还是安全', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffb74d',
+      dialogText:'年度比武——团队练习了两个月，目标是拿全团第一。比赛中一个高强度障碍有摔倒风险——如果跳过会扣分，如果全速冲过去可能受伤——',
+      aEmoji:'🏆', aLabel:'全力冲击障碍争第一名', aDesc:'受伤也是勋章，荣誉至上', aFeedback:'你成功了——但另外一个战友在同样的障碍上摔断了腿。荣誉重要，但用战友的身体去换的第一，值不值得？',
+      bEmoji:'🛡️', bLabel:'提醒战友安全优先+团队通过', aDesc:'不争个人速度，保证全员安全完赛', bFeedback:'你们全员安全完赛，拿了第二名。排长说"我宁愿要一个全员健康的第二，也不要一个有人受伤的第一。"真正的胜利不是打败别人，而是安全带回每一个人。' },
+    { sceneName:'🛰️ 指挥所', title:'情报与判断', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'上级发来了两个来源的情报——无人机影像和地面侦察报告，两者有矛盾。你的判断将决定下一步行动方向——',
+      aEmoji:'🛸', aLabel:'相信无人机影像', aDesc:'技术设备总比人的眼睛准', aFeedback:'按无人机情报出击后发现——是伪装网造成的视觉干扰，浪费了宝贵时间。技术是辅助，不是替代。',
+      bEmoji:'🔍', bLabel:'派出侦察组地面核实', aDesc:'用"人眼+技术"交叉验证', bFeedback:'侦察组确认无人机影像被伪装了，实际部署完全不同。调整方案后精准完成任务。情报永远需要交叉验证——相信数据但不迷信数据。' },
+    { sceneName:'⛑️ 战场救援', title:'弹药还是战友', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'前线传来紧急呼叫——一个战友重伤需要紧急后送！但送他回去意味着你的分队少了两个人——火力减少，任务完成难度增大。你不是医务兵，但你知道止血——',
+      aEmoji:'🎯', aLabel:'派人送伤员回去', aDesc:'两条生命减员2人，但能救1条命', aFeedback:'伤员得到了及时救治。虽然任务推迟了，但当战友听说"队长先送我回来"时，整个分队的士气更高了。人永远比任务重要。',
+      bEmoji:'⚔️', bLabel:'先完成当前任务再后送', aDesc:'伤员先止血，任务完成后全队回撤', aFeedback:'任务提前完成了，但伤员因失血过多失去了最佳治疗时机。军人要为任务负责，但更要为战友的生命负责——这个先后顺序不能乱。' },
+    { sceneName:'📡 通讯中断', title:'与指挥失联后', bg:'linear-gradient(180deg, #0a1520 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'重大任务进行中，通讯突然中断——和上级失去了联系。你有两个选择：原地等待恢复或按原定计划和自己的判断继续执行——',
+      aEmoji:'⏸️', aLabel:'原地待命等待恢复', aDesc:'没有上级指令不擅自行动', aFeedback:'等了40分钟通讯恢复了。时机窗口已过，任务需要重新安排。"机械式服从"在需要灵活应变的战情下可能错失时机。',
+      bEmoji:'🧭', bLabel:'按原定意图独立判断继续', aDesc:'上级给的是"意图"而非"指令"，我有权临机应变', bFeedback:'你基于上级最初传达的"战役意图"独立做出判断，带领分队完成了任务。回来后上级说"我选你当队长，就是为了这种时刻"。真正的执行力不是等命令，是理解意图后独立行动。' },
+    { sceneName:'🏕️ 战地宿营', title:'士气低落', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'连续三天高强度行军后，全队极度疲惫。有战士在小声抱怨——"我们为什么要受这个苦"。你注意到几个人的情绪已经在影响整体——',
+      aEmoji:'📢', aLabel:'严厉强调纪律和使命', aDesc:'军人以服从命令为天职，不准抱怨', aFeedback:'没人抱怨了——但士气更低。命令可以管住嘴巴，但管不住心。强制获得的"安静"不是战斗力。',
+      bEmoji:'🔥', bLabel:'短暂休息+分享自己年轻时的糗事', aDesc:'和战士坐在一起聊聊，让他们知道你也煎熬过', bFeedback:'你说起自己刚入伍时想放弃的那个大雨夜。战士们笑了——原来排长也这样过。分享脆弱比展示刚强更能凝聚团队。那一晚的火光和故事，比任何口号都让队伍更坚定。' },
+    { sceneName:'🕊️ 维和任务', title:'撤退还是坚守', bg:'linear-gradient(180deg, #1a0f08 0%, #3d2010 35%, #1a1a3e 100%)', accent:'#ff9800',
+      dialogText:'最后一个维和执勤日——叛乱分子的武装车队正接近平民安置点。撤退令已下达，但如果你们全撤，平民将彻底失去保护——',
+      aEmoji:'🏃', aLabel:'按命令全员撤离', aDesc:'军令如山，而且留下来风险太大', aFeedback:'你们安全撤离了，但平民安置点在夜间遭到袭扰。虽然遵守了命令，但作为军人，没能完全保护需要保护的人。',
+      bEmoji:'🛡️', bLabel:'留下一部分自愿者驻守一夜', aDesc:'非直接对抗，以存在威慑保护平民', bFeedback:'几个战友自愿留下。你们整夜在外围巡逻、亮灯、与当地长老沟通——昨晚平安无事。第二天大部队换防。军人的职责不只是服从命令，更是守护需要守护的人。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中国人民革命军事博物馆',location:'北京',desc:'参观战斗机、坦克、舰艇等真实装备，了解中国军事历史',url:'https://www.jb.mil.cn/'},
+      {name:'北京卫戍区国防教育基地',location:'北京',desc:'近距离看军营生活、内务整理、队列表演',url:'https://www.mod.gov.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年国防教育夏令营',location:'北京',desc:'体验队列训练、野外生存、简易急救，培养纪律性和团队精神',url:'https://www.jb.mil.cn/'},
+      {name:'北京少年军校',location:'北京',desc:'周末或寒暑假的准军事化训练，学习军人作风和基本技能',url:'https://www.mod.gov.cn/'},
+    ],
+    books:[
+      {name:'《长征：前所未闻的故事》少儿版',desc:'讲述红军长征中最感人的故事，让孩子理解信仰的力量'},
+      {name:'《孙子兵法》漫画版',desc:'中国古代军事智慧的漫画解读——不战而屈人之兵是什么道理'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🤝',title:'军人之间信任是最高原则',desc:'在战斗中，你把自己后背的安全交给战友——这种信任比任何合同都牢固。研究发现，经历过同甘共苦的团队，成员之间的信任度是普通团队的5倍多。"生死与共"不是形容词。'},
+    {emoji:'🗺️',title:'军人要比棋盘高手想得远',desc:'一个战术决定至少要提前想3步——我这样做，敌人会怎样反应，我应该怎样应对。这和下国际象棋非常像：每一步都在预判和博弈。军人是"现实世界中的棋手"。'},
+    {emoji:'🌍',title:'中国军人在全球执行维和任务',desc:'中国是联合国维和行动出兵最多的常任理事国。从南苏丹到黎巴嫩，中国军人不仅保卫祖国，也在保护全世界需要帮助的人。'},
+  ],
+},
+
+architect: {
+  id:'architect', name:'建筑师', emoji:'🏗️', tagline:'用创意和结构，为世界搭建梦想空间',
+  field:'建筑设计', funFact:'世界最高的建筑哈利法塔高828米——相当于把3个埃菲尔铁塔叠起来。建筑师让"不可能的建筑"变成了现实🏗️',
+  intro:'建筑师是设计房子、桥梁和城市公共空间的人。他们画出蓝图，计算结构，让建筑安全又美观——你每天看到的高楼、学校、公园，都经过建筑师的设计。他们是"城市的造梦师"。',
+  timeline:[
+    {era:'古代',emoji:'🏛️',text:'古代建筑师不用图纸就能建造出金字塔、长城、故宫这样的奇迹。中国古代的"样式雷"家族设计了半个北京城。'},
+    {era:'现在',emoji:'🏙️',text:'现代建筑师用计算机辅助设计，摩天大楼越来越高、越来越环保。建筑不只是"遮风挡雨"——而是生活的容器、城市的风景。'},
+    {era:'未来',emoji:'🌿',text:'未来建筑会呼吸——绿色建筑自己产生能源、净化空气。月球基地、海底酒店——未来建筑师将在"不可能的地方"建造家园。'},
+  ],
+  abilities:[
+    {name:'空间想象力',emoji:'🧩',subject:'数学·几何',def:'在脑海中构建三维空间，想象人在建筑中的感受和动线。'},
+    {name:'科学与计算',emoji:'📐',subject:'物理·力学',def:'确保建筑能抵抗重力、强风、地震——安全永远是底线。'},
+    {name:'美学设计感',emoji:'🎨',subject:'美术·设计',def:'在功能和美观之间找到完美的平衡点。'},
+    {name:'沟通协调力',emoji:'🤝',subject:'团队协作',def:'和结构师、施工方、业主沟通——让创意落地。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'场地踏勘',desc:'去现场观察地形、光照、环境',emoji:'🔍'},
+    {time:'✏️ 上午',title:'构思设计',desc:'画草图、做模型、反复推敲方案',emoji:'📐'},
+    {time:'💻 下午',title:'绘图建模',desc:'用软件画出精确的施工图纸',emoji:'🖥️'},
+    {time:'👥 傍晚',title:'会议沟通',desc:'和客户、工程师讨论方案',emoji:'🤝'},
+  ],
+  figures:[
+    {name:'贝聿铭',title:'现代主义建筑大师',emoji:'🏛️',story:'贝聿铭设计了巴黎卢浮宫的"玻璃金字塔"——全世界都反对他，在巴黎的心脏放一个金字塔？但建成后变成了巴黎的新地标。他说"建筑不是追随时尚，是创造永恒。"'},
+    {name:'林徽因',title:'中国第一位女建筑师',emoji:'🇨🇳',story:'林徽因不仅是中国第一位女建筑师，还是诗人和作家。她和丈夫梁思成一起走遍中国，保护古建筑。她参与了国徽和人民英雄纪念碑的设计——用建筑书写了中国的现代篇章。'},
+  ],
+  scenes: [
+    { sceneName:'🏞️ 项目选址地', title:'场地上的冲突', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 35%, #16213e 100%)', accent:'#66bb6a',
+      dialogText:'场地上有一棵200岁的老榕树——社区孩子们都在树下玩。但大树正好在最佳建筑轴线位置上。保留大树会影响建筑布局，砍掉就能做完美的设计——',
+      aEmoji:'🪚', aLabel:'申请移走大树', aDesc:'建筑功能优先，树可以移栽', aFeedback:'移栽后大树没能存活。社区失去了一个记忆的地标。好的建筑不破坏场所的灵魂——建筑是为了人，如果人为此失去珍贵的东西，设计再美也是失败。',
+      bEmoji:'🌳', bLabel:'围绕大树重新设计', aDesc:'把树作为建筑的一部分来思考', bFeedback:'你重新设计了建筑布局——大树成了庭院的核心，所有房间的窗户都朝向它。这个"因树而生"的设计获得了设计奖。最大的限制往往产生最好的创意。' },
+    { sceneName:'📐 设计室', title:'美观vs预算', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'业主看了你精心设计的方案很喜欢，但说"这个外墙设计太贵了，能不能改成便宜的"。你喜欢的设计特色马上就要被砍掉了——',
+      aEmoji:'😤', aLabel:'坚持原有设计据理力争', aDesc:'好东西不能妥协，这是专业底线', aFeedback:'你争了，业主不太高兴地同意了。但最后结算超预算，大家都很难受。坚持没错——但建筑师也要考虑经济现实。',
+      bEmoji:'💡', bLabel:'保留核心设计意图+寻找替代材料', aDesc:'用一种便宜的当地石材重新设计', bFeedback:'你找到一种当地石材——比原设计便宜40%，而且更有地方特色。业主大喜，社区也说"像长在这里的一样"。限制不总是敌人——有时候它帮你想出了更好的方案。' },
+    { sceneName:'⚠️ 施工现场', title:'发现结构隐患', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'施工现场发现地基条件比勘探报告显示的差很多——如果继续按原设计施工，几年后可能有沉降开裂风险。但重新设计要推迟半年、增加巨额费用——',
+      aEmoji:'📝', aLabel:'记录风险后继续施工', aDesc:'地址勘探是别人的责任，我已尽责告知', aFeedback:'几年后建筑出现沉降裂缝——虽然法律上不是你的责任，但你知道自己本可以阻止。建筑师的签名意味着"我认为它是安全的"——不只是"别人告诉我它是安全的"。',
+      bEmoji:'🚧', bLabel:'叫停施工+重新设计地基', aDesc:'推迟半年但确保50年安全', bFeedback:'你顶住投资方的压力下令停工。重新加固地基后建筑工程稳步推进。建筑几十年甚至上百年——建筑师对安全的责任比工期大得多。后来楼里住了上千人——你可以坦然地看着他们说"这里是安全的"。' },
+    { sceneName:'🏙️ 社区听证会', title:'现代还是传统', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'要在古建筑旁边建一个新图书馆。你设计了极简现代风格——和古建筑形成"新旧对话"。但社区民众强烈反对——"太现代了，破坏了老街的味道"',
+      aEmoji:'🎨', aLabel:'坚持现代方案，解释设计理念', aDesc:'新旧对比才是对话，仿古是假古董', aFeedback:'你的解释很专业，但愤怒的社区居民不买账。建筑是为使用者服务的——建筑师有专业知识，但不能傲慢地认为"你们不懂所以你们错了"。',
+      bEmoji:'🤝', bLabel:'邀请居民参与设计讨论', aDesc:'用模型让居民理解，吸收反馈微调', bFeedback:'你和居民一起讨论，发现他们最在意的不是"风格"而是"屋檐"。你保留了现代设计但加入了传统屋檐元素。最后方案获得了社区的拥抱——当人们感觉"这也是我的建筑"时，阻力就变成了助力。' },
+    { sceneName:'📱 社交媒体', title:'网络上的批评', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'建筑落成后在社交网络上被网友调侃——"像一堆鞋盒子叠起来的"。虽然专业圈内评价不错，但公众的评价让你怀疑自己——',
+      aEmoji:'😔', aLabel:'迎合大众审美改设计', aDesc:'下一栋建筑做大众能理解的风格', aFeedback:'你做了更"安全"的设计——像周围的建筑一样。没人骂，也没人注意。当你只为不被骂而设计，你已经不是建筑师了——只是一个画图的人。',
+      bEmoji:'🔥', bLabel:'接受批评+坚持建筑理想', aDesc:'最好的建筑是需要时间去理解的作品', bFeedback:'你在社交媒体上用简单有趣的方式解释了你的设计理念——网友从"嘲笑"变成"原来如此，挺有意思"。教育公众也是建筑师的工作——你的设计被理解了，虽然依然有人不喜欢，但尊重有了。' },
+    { sceneName:'🌿 低碳设计', title:'环保材料的抉择', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'业主想要最"绿色"的建筑——使用一种极昂贵的环保新材料。但这种材料只有一家小厂生产——品质不稳定，而且产量不确定能否支持整个项目——',
+      aEmoji:'🌍', aLabel:'支持用最环保的新材料', aDesc:'绿色理念最重要，成本不是第一位', aFeedback:'材料中途断供，更换供应商后效果不一样——建筑最终"绿"名不副实。理想不能脱离现实——否则理想本身也会沦为空话。',
+      bEmoji:'⚖️', bLabel:'选择更成熟的环保方案', aDesc:'用成熟的、稳定的、80%环保的方案换100%可行性', bFeedback:'你选了一种有5年实际验证的节能玻璃和本地木材——环保90分，但100%可控。竣工后获得了绿色建筑认证。完美是做到最好的敌人——一个实现了的90分，比一个做不到的100分有价值得多。' },
+    { sceneName:'🏗️ 工地', title:'最后的妥协', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'施工队说"图纸上这个3毫米的缝我们做不出来，调成5毫米可以吗？这是最后一处了"。几个月的细碎妥协让你很累——',
+      aEmoji:'😩', aLabel:'算了，3还是5毫米影响不大', aDesc:'已经够累了，这次就让步吧', aFeedback:'最终10处"小妥协"加起来——建筑成品和你的设计有看得见的差距。设计的品质是无数次"不妥协"累积出来的。',
+      bEmoji:'🔧', bLabel:'理解困难但找到解决办法', aDesc:'和施工队一起研究可以达到3毫米的技术', bFeedback:'你亲自到现场和老师傅商量，一起想出了一个调整工序的方法——缝做到了3毫米。老师傅说"我干了20年，你是第一个为了3毫米来现场陪我站一小时的建筑师。"专业精神不在嘴上的坚持——在行动和尊重。' },
+    { sceneName:'🏠 交付日', title:'最后一盏灯', bg:'linear-gradient(180deg, #1a0f08 0%, #3d2010 35%, #1a1a3e 100%)', accent:'#ff9800',
+      dialogText:'建筑即将交付。你在做最后巡查时发现——儿童阅览区的灯光偏冷，孩子们看书会不舒服。但换成暖光灯具需要额外费用和时间——',
+      aEmoji:'⏰', aLabel:'按期交付，灯光下次再改', aDesc:'一盏灯而已，不影响验收', aFeedback:'建筑按期交付了。后来看到照片里小朋友眯着眼看书——你知道是那盏灯的问题。建筑师的遗憾往往不是大错误——而是那些"下次再改"的小细节。',
+      bEmoji:'💡', bLabel:'一定要换暖光灯', aDesc:'哪怕多花两天，但儿童阅览区每天有很多孩子来这里', bFeedback:'你花了两天自费更换了灯具。开馆第一天，一个小朋友说"妈妈这里的光好暖"——你在一旁听到，觉得比拿奖还开心。好建筑不在杂志上——在每一个使用者的微小感受里。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京古代建筑博物馆',location:'北京',desc:'体验中国传统建筑智慧——斗拱、榫卯，看建筑如何立起来',url:'https://www.bjgjg.com/'},
+      {name:'故宫博物院',location:'北京',desc:'世界上最大的古代宫殿建筑群，堪称中国古建筑的百科全书',url:'https://www.dpm.org.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年建筑设计夏令营',location:'北京',desc:'用纸板、3D软件搭建自己的梦想之屋',url:'https://www.chinaasc.org/'},
+      {name:'北京乐高探索中心·建筑挑战赛',location:'北京',desc:'用乐高搭建高层建筑或桥梁，学习建筑结构',url:'https://beijing.legolanddiscoverycenter.cn/'},
+    ],
+    books:[
+      {name:'《建筑的故事》',desc:'从金字塔到蓬皮杜中心，用精美插图讲述16座伟大建筑的故事'},
+      {name:'《如果你住在这里》',desc:'想象生活在不同建筑类型里的感受——从树屋到太空站'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🗼',title:'比萨斜塔的"倾斜"救了它',desc:'比萨斜塔因为地基松软而倾斜——这个"缺陷"反而让它成为世界最著名的塔。当初建它的人永远不会想到这个"错误"会变成世界遗产。建筑最有趣的地方：意义随着时间改变。'},
+    {emoji:'🌉',title:'桥梁可以"跳舞"',desc:'1940年美国塔科马海峡大桥因风力共振剧烈摇摆倒塌——这个事故教会了所有建筑师：风可以把桥"吹扭"的。从此每个桥梁都要做风洞测试。工程学的每一次进步，都是用教训换来的。'},
+    {emoji:'🏠',title:'中国传统建筑不用钉子？',desc:'故宫的宫殿群、山西的木塔都是用榫卯连接的——木头之间就像积木一样咬合在一起。这种结构能分散地震力，让建筑在地震中"摇摆而不断裂"。古人的智慧不亚于现代工程师！'},
+  ],
+},
+
+journalist: {
+  id:'journalist', name:'记者', emoji:'📰', tagline:'记录真相，用笔和镜头让世界看见',
+  field:'新闻媒体', funFact:'一个记者一年可能要写超过200篇报道——相当于一本书的厚度。记者是世界上"知道秘密最多的人"之一📰',
+  intro:'记者是搜集信息、报道事实、揭示真相的人。他们出现在新闻现场，用文字、照片、视频记录正在发生的事——从大事要闻到普通人的故事。记者是"社会的眼睛和耳朵"。',
+  timeline:[
+    {era:'古代',emoji:'📜',text:'古代有"邸报"——官府发布的新闻手抄本，是中国最早的"报纸"。口头传递消息的"信使"是最早的记者。'},
+    {era:'现在',emoji:'📱',text:'记者用手机就能拍摄、写稿、直播——新闻从事件发生到全世界看见可能只需几分钟。'},
+    {era:'未来',emoji:'🤖',text:'AI可以写稿子但不会问"为什么"——最好的报道来自记者的好奇心、判断力和勇气。机器能报道事实，但人才能讲述"故事"。'},
+  ],
+  abilities:[
+    {name:'好奇心与追问',emoji:'❓',subject:'语文·逻辑',def:'永远不满足于第一个答案，不断追问"为什么"和"后来呢"。'},
+    {name:'信息辨别力',emoji:'🔍',subject:'逻辑·批判性思维',def:'在真假混杂的信息中分辨事实，不被假象迷惑。'},
+    {name:'清晰的表达',emoji:'✍️',subject:'语文',def:'用简洁准确的语言把复杂事件讲得让所有人都能懂。'},
+    {name:'勇气与坚持',emoji:'💪',subject:'心理素质',def:'为了一个真相可能要等上几周、几个月——不怕困难。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'选题会',desc:'讨论今天要报道什么新闻',emoji:'📋'},
+    {time:'🎤 上午',title:'外出采访',desc:'去新闻现场，采访相关的人',emoji:'🎙️'},
+    {time:'✍️ 下午',title:'写稿编辑',desc:'把采访内容写成清晰简练的报道',emoji:'💻'},
+    {time:'📺 傍晚',title:'发布新闻',desc:'修改确认后，新闻在平台发布',emoji:'📡'},
+  ],
+  figures:[
+    {name:'范长江',title:'中国新闻先驱',emoji:'🇨🇳',story:'80多年前，年轻的范长江只身一人走遍中国大西北，记录下了那个时代最真实的画面。他是第一个去延安采访的外地记者——用笔和勇气让全世界看到了真实的中国。'},
+    {name:'柴静',title:'调查记者',emoji:'🎤',story:'柴静花了一整年时间追踪雾霾问题——采访科学家、病人、政府，最后做出了纪录片《穹顶之下》。一个记者用持续的追问，让几亿人开始关注呼吸的空气。她证明了：一个提问就可以改变世界。'},
+  ],
+  scenes: [
+    { sceneName:'📞 编辑部', title:'一条匿名线索', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'收到匿名邮件——举报某食品企业违规添加。这是大新闻，但只凭一封匿名邮件无法核实。如果先问企业——对方可能会销毁证据；如果不核实就发——可能是假的——',
+      aEmoji:'📰', aLabel:'抢先发稿抢占独家', aDesc:'先发制人，有疑问后续可以更正', aFeedback:'报道发出后引发恐慌，但第二天企业拿出了检测报告——举报是竞争对手造谣。你的信誉严重受损。新闻的第一原则是准确——不是速度。',
+      bEmoji:'🔍', bLabel:'暂且保密+多源核实', aDesc:'找多个独立信源交叉验证后再发', bFeedback:'你花了3天时间采访了5个前员工、查阅了检测报告、咨询了专家——最终证实了举报并找到了更多细节。这篇深度报道后来获得了年度新闻奖。独家靠速度，但信任靠准确。' },
+    { sceneName:'🎤 采访现场', title:'不愿开口的受访者', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'你找到了一个重要知情人——但他拒绝接受采访，"说出来会丢工作的"。你知道他掌握的信息对公众很重要——',
+      aEmoji:'📹', aLabel:'用隐藏设备偷拍', aDesc:'为了公众利益，可以不择手段', aFeedback:'偷拍片段曝光后你的媒体因"侵害隐私"被告，你也被解雇。法律和道德底线不能以"为公众好"为借口跨过。',
+      bEmoji:'☕', bLabel:'花时间建立信任', aDesc:'不急着采访，先聊天，理解他的处境', bFeedback:'你花了几天和他喝咖啡——不谈采访。他被你的真诚和尊重打动，最终同意在保护身份条件下接受采访。最好的采访不是"问"来的——是"等"来的。' },
+    { sceneName:'🌪️ 灾难现场', title:'报道还是救援', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'灾区一线——你正拍摄灾情，突然看到一个老人被困。你举着相机——旁边救援队要几分钟后才到。按下快门能记录重要瞬间，但老人需要帮助——',
+      aEmoji:'📸', aLabel:'继续拍摄——这是记者的职责', aDesc:'记录灾难能帮助更多其他地方的人', aFeedback:'你的照片确实引起了关注。但现场其他人看到记者"只顾拍照不顾人命"——你失去了在场所有人的尊重，也失去了更多采访的可能。',
+      bEmoji:'🆘', bLabel:'放下相机先去帮忙', aDesc:'先救人，记录可以等', bFeedback:'你放下相机用3分钟帮老人脱离了困境。老人安全后，他的家人主动接受你的采访——因为他们信任你。记者首先是"人"，然后才是"记者"。人性比新闻更重要。' },
+    { sceneName:'⚖️ 法务部', title:'报道的边界', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'你的报道揭露了某部门的不作为——证据确凿，但涉及的信息来源中有一部分是"内部文件"。对方威胁如果发表就起诉你和报社——',
+      aEmoji:'🔥', aLabel:'顶住压力照常发表', aDesc:'真相就是真相，公共利益至上', aFeedback:'报道发表了，但报社因"非法获取内部文件"被判败诉——你的热情伤害了报社和同事。勇气和无畏不等于鲁莽——找到合法的方式揭露合法的真相。',
+      bEmoji:'⚖️', bLabel:'咨询法务调整报道方式', aDesc:'不放弃报道，但确保合法合规', bFeedback:'你和法务一起删除了有争议的证据部分，用其他可公开的信息重建了同样的报道——依然有力，而且无懈可击。好的调查报道就像好的建筑——必须要既能显现真相，又能经得起法律的检验。' },
+    { sceneName:'📱 截稿线', title:'真假新闻', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'社交网络上一段视频爆火——"学校老师体罚学生"。转发已过百万，大家都在骂。你联系到学校——对方解释说"视频被恶意剪辑"。距离截稿还有30分钟——',
+      aEmoji:'⏰', aLabel:'先引用网络视频发文', aDesc:'热点不等人，先发了再追后续', aFeedback:'报道转发量巨大——但2小时后完整监控曝光，证明视频确实被恶意加工。你成了传播假新闻的帮凶。记者不是搬运工——不能把"网上看到"当"事实"。',
+      bEmoji:'🧐', bLabel:'拒绝跟风，继续查证', aDesc:'宁可错过首发热度，也要核实真相', bFeedback:'你推迟发稿，找到原始监控录像、采访了当事学生家长。完整报道证明了视频造假。虽然比全网慢了半天——但只有你的报道是100%正确的。慢而正确比快而错误有价值一百万倍。' },
+    { sceneName:'👤 专访室', title:'名人的压力', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'专访一位有权势的人物。他在采访中开始说一些有争议的内容——如果追问可能失去这个专访，而编辑就想要这篇稿子——',
+      aEmoji:'🤝', aLabel:'顺着话走保住专访', aDesc:'不激怒对方，完整记录交给编辑部判断', aFeedback:'稿子发表了但读者说"只是给他传声而已"。当一个记者只是"记录"而不提问，你就不再是记者——只是一个录音笔。',
+      bEmoji:'🎯', bLabel:'礼貌追问+请对方回应质疑', aDesc:'专访的意义不是让受访者"舒服"而是让公众"明白"', bFeedback:'你追问了几个关键问题——对方虽然不太高兴但还是回答了。第二天你的专访被广泛引用，因为读者看到了不同角度的提问。采访的尊严不在于"提问的机会"——而在于你把话筒变成一把追问的利器。' },
+    { sceneName:'🌍 异国他乡', title:'自由与责任', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'你被邀请参加一个国际报道——包机、五星酒店、稿酬优厚。但条件是"需要按我们的角度写"。你的同行说"这很正常——大家都这样做的"——',
+      aEmoji:'✈️', aLabel:'接受条件', aDesc:'机会难得，先拿到再说', aFeedback:'稿子发表了但你自己都认不出那是你写的。读者也感受到了——质量下滑带来信任流失。有些好处价值比你想象的小——而代价比你想象的大。',
+      bEmoji:'🚫', bLabel:'拒绝并提出自己的选题', aDesc:'宁可不参加，也不放弃独立角度', aFeedback:'你拒绝了这次邀请——但后来你的坚持被同行所知。一个独立编辑找到你说"我也一直在等一个敢说不的人"。坚持原则可能会少掉一些机会，但会来对的机会。' },
+    { sceneName:'🏠 夜半', title:'发布前一刻的犹豫', bg:'linear-gradient(180deg, #050510 0%, #0f0f2d 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'所有证据已核实，报道即将发布。但你知道这篇报道可能对当事人造成巨大影响——他的家人、事业可能因此破裂。报道是准确且对公众重要的，但你是否可以在发布前告知对方——',
+      aEmoji:'🚀', aLabel:'直接发布', aDesc:'已经核实完毕，不需要再犹豫', aFeedback:'报道发布后引发了强大反响。但当事人被"突然袭击"——他的公众反应加剧了事件的影响。有时候给他一个准备回应的机会，报道会更完整。',
+      bEmoji:'📞', bLabel:'提前联系对方给予回应机会', aDesc:'在发稿前给对方一个回应的窗口', bFeedback:'你联系了当事人并给了他24小时回应时间。他提供了新的信息——报道更全面了。更重要的是，读者看到两边的声音，报道的公信力更强。给被报道者回应的机会，不是削弱了报道——是加强了它。' },
+  ],
+  resources: {
+    visits:[
+      {name:'新华社历史陈列馆',location:'北京',desc:'了解中国新闻发展史，看从铅字印刷到融媒体的新闻变迁',url:'https://www.xinhuanet.com/'},
+      {name:'中央广播电视总台·央视大楼',location:'北京',desc:'走进演播室、编辑室，体验当一天小主播',url:'https://www.cctv.com/'},
+    ],
+    practices:[
+      {name:'北京青少年新闻夏令营',location:'北京',desc:'模拟新闻发布会、街头采访、新闻报道制作',url:'https://www.xinhuanet.com/'},
+      {name:'北京校园小记者培训',location:'北京',desc:'学习采访、写作、拍摄，报道身边的大小事',url:'https://www.bjedu.cn/'},
+    ],
+    books:[
+      {name:'《小记者的大世界》',desc:'用故事教孩子如何观察世界、提出问题、写出好报道'},
+      {name:'《看见》青少年节选版',desc:'中国记者柴静的报道故事集，让孩子看到记者可以如何影响社会'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🔍',title:'一个好记者要问五个W',desc:'记者写报道要回答5个问题：Who（谁）、What（什么事）、Where（在哪）、When（什么时候）、Why（为什么）。然后才是最重要的第六个问题——So What？（所以呢？这和读者有什么关系？）'},
+    {emoji:'📸',title:'一张照片可以改变世界',desc:'1972年越南战争的一张照片——《火从天降》——让美国民众看到了战争的真面目，加速了战争结束。有时候一篇报道、一张照片、一个提问，真的有改变历史的力量。'},
+    {emoji:'🤖',title:'AI写的新闻和记者写的不一样',desc:'AI可以在几秒钟内写出一篇体育比分、天气报告。但最好的报道——深度调查、人物故事、思想评论——需要人的判断力、同理心和勇气。AI可以告诉你"发生了什么"，但只有记者能告诉你"这意味着什么"。'},
+  ],
+},
+
+engineer: {
+  id:'engineer', name:'工程师', emoji:'⚙️', tagline:'用科学和技术解决真实世界的问题',
+  field:'工程技术', funFact:'地球上桥梁最高记录是565米——北盘江大桥的高度。工程师让车"在空中行驶"⚙️',
+  intro:'工程师是运用科学原理设计、建造、维护各种系统和产品的人。从手机到高铁、从桥梁到航天器——你身边几乎每一件东西都有工程师的智慧。他们是"把想象变成现实"的人。',
+  timeline:[
+    {era:'古代',emoji:'🏗️',text:'古代工程师用杠杆和滑轮建造了金字塔、长城。中国的都江堰2000多年来一直在使用——是最早的伟大水利工程。'},
+    {era:'现在',emoji:'💻',text:'现代工程师用计算机设计一切——芯片、飞机、新能源系统。工程师创造的技术产品已经渗透到每个人生活的方方面面。'},
+    {era:'未来',emoji:'🌱',text:'未来的工程师可能要解决人类面临的最大挑战——清洁能源、气候变化、太空移民。用科技让世界变得更好。'},
+  ],
+  abilities:[
+    {name:'数理逻辑',emoji:'📐',subject:'数学·物理',def:'用数学和科学原理分析问题、设计解决方案。'},
+    {name:'动手创造',emoji:'🔧',subject:'工程·技术',def:'不只是画图纸——把想法做出来、测试、改进、直到成功。'},
+    {name:'系统思维',emoji:'🧩',subject:'逻辑·系统科学',def:'看一个部件时能看到它对整个系统的影响。'},
+    {name:'团队协作',emoji:'🤝',subject:'沟通·领导力',def:'工程师很少独自工作——和设计师、产品经理、施工队一起把项目落地。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'站会计划',desc:'和团队对齐今天要完成的任务',emoji:'📋'},
+    {time:'💻 上午',title:'设计与计算',desc:'用软件设计、模拟、分析方案',emoji:'🖥️'},
+    {time:'🔧 下午',title:'测试与改进',desc:'搭建原型、跑测试、找BUG',emoji:'🛠️'},
+    {time:'📊 傍晚',title:'复盘总结',desc:'回顾问题和进展，计划明天的任务',emoji:'📝'},
+  ],
+  figures:[
+    {name:'詹天佑',title:'中国铁路之父',emoji:'🇨🇳',story:'100多年前外国人断言中国修不了铁路。詹天佑不服——他设计了"人字形"铁路解决了陡坡难题，修建了第一条中国人自己修的铁路。他用智慧和骨气证明——没有中国人做不了的工程。'},
+    {name:'埃隆·马斯克',title:'现实版钢铁侠',emoji:'🚀',story:'马斯克同时在做电动车（特斯拉）、可回收火箭（SpaceX）和脑机接口。他说"工程师就是要解决那些别人说不可能的问题"。他在一步步把科幻变成科学。'},
+  ],
+  scenes: [
+    { sceneName:'💻 研发中心', title:'技术的岔路口', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'新项目启动——你有两个技术方案：A方案用成熟技术，稳定快但创新性一般；B方案用前沿技术，性能高很多但风险未知。项目有硬截止日期——',
+      aEmoji:'✅', aLabel:'选成熟方案确保按期交付', aDesc:'稳定可靠，不冒险', aFeedback:'项目准时交付了——但半年后竞争对手用了前沿技术，你们的产品落后了。过度保守在工程领域也有风险：不是"做错什么"，而是"什么都没做错但被淘汰了"。',
+      bEmoji:'🚀', bLabel:'选前沿方案+做好风险管理', aDesc:'预留B计划和时间缓冲，评估最坏情况下怎么办', bFeedback:'你选了新技术方案但设立了风险检查点——每两周检验进度。在第二个检查点发现一个技术难点，及时增加资源和调整方案，最终在延期2周的情况下交付了领先市场的产品。创新不是赌博——是有Plan B的勇敢。' },
+    { sceneName:'⚠️ 测试现场', title:'意外的失败', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'重要测试中——系统在极限条件下崩溃了。团队连续加班2周做的方案"废了"。大家都很沮丧——有人小声说"我们已经尽力了，报告就写这个方案不可行吧"——',
+      aEmoji:'📝', aLabel:'结案报告+转做备选方案', aDesc:'承认失败是工程师的诚实', aFeedback:'备选方案效果平庸但能交付。那份失败的报告被归档——但其实失败的方案里有一个子系统的创新值得继续探索。失败了就扔掉一切，也扔掉了改进的机会。',
+      bEmoji:'🔍', bLabel:'深入分析失败原因', aDesc:'每一个失败都藏着改进的钥匙', bFeedback:'你带队对崩溃进行了"5Why分析"——连续追问5个为什么。原因最终追溯到某零件供应商的参数误差。修改后不仅问题解决，还发现了更优的设计。失败是工程的一部分——不分析失败才是真正的失败。' },
+    { sceneName:'📊 项目评审会', title:'安全与进度的博弈', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'一个安全测试可做可不做——做了可能延期2周被客户罚，不做可能潜在风险但概率很低。项目经理建议"把这个测试标记为可选项吧"——',
+      aEmoji:'⏩', aLabel:'跳过测试按期交付', aDesc:'概率风险不值得让项目延期', aFeedback:'项目按时上线——3个月后那个角落里的"低概率风险"变成了真实故障，影响了大量用户。概率低不等于不发生——当使用规模足够大时，1/10000意味着早晚会出问题。',
+      bEmoji:'🛡️', bLabel:'坚持测试+主动承担延期责任', aDesc:'和客户坦诚沟通，解释安全测试的必要性', bFeedback:'你和客户做了坦诚的技术沟通，客户理解了延迟的原因并延长了一周的交付期。工程伦理不是写在教科书里的句子——是当没人看着你的时候，你依然选择做对的事情。' },
+    { sceneName:'🧩 集成测试', title:'接口不兼容', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'两个团队各自做的模块在集成时发现接口不兼容——两边都说"我的部分是对的"。交付日越来越近——',
+      aEmoji:'📋', aLabel:'各打五十大板各自修改', aDesc:'两边都改一点，折中方案', aFeedback:'两边都改了——接口临时拼在一起"能用"，但性能大打折扣。工程最怕的不是分歧——而是一个谁都不满意的妥协方案。',
+      bEmoji:'🤝', bLabel:'拉两个团队共同讨论', aDesc:'把"你vs我"变成"我们vs问题"', bFeedback:'你组织了一个技术讨论会，不谈"谁的错"只谈"怎么解决"。团队联合想出的方案比各自做的都要好。好的工程师不是"最会争的"——是"最会让大家一起解决问题的"。' },
+    { sceneName:'🌿 产品研讨会', title:'功能的多余', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'市场部要求加很多功能——但你知道其中大部分用户不需要，反而会让系统变复杂变慢。但拒绝可能显得"工程师不想干活"——',
+      aEmoji:'✅', aLabel:'全加上——反正不用我维护', aDesc:'让市场和产品经理开心最重要', aFeedback:'功能都加上去了但系统臃肿、性能下降，半年后又在删除没人用的功能。成本是团队的时间、用户的使用体验。说"是"很简单——但乱说是对团队和用户的不负责。',
+      bEmoji:'📊', bLabel:'用数据说话——拿出用户调研', aDesc:'指出核心功能和次要功能的区别', bFeedback:'你用数据展示了用户真正使用的功能集中在少数几项——建议先做好核心体验再逐步增加。市场部同意了。工程师不只是"写代码的"——你也是用户体验的守护者。' },
+    { sceneName:'🔐 安全漏洞', title:'主动暴露还是沉默', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'你发现的系统漏洞虽然目前无人能触发——但它确实存在。如果公开报告——会引发客户担忧甚至赔偿。如果悄悄修复——没人知道——',
+      aEmoji:'🤫', aLabel:'悄悄修复不说', aDesc:'修好了就没有问题，说出来只会惹麻烦', aFeedback:'修复了但心虚——如果别人发现了同样的漏洞而没有你的修复，用户会受损。工程师的职业道德：如果你知道风险而不告知，那也是你的责任。',
+      bEmoji:'📢', bLabel:'上报安全团队+建议按流程公告', aDesc:'透明才能建立信任', bFeedback:'你按规程上报了漏洞。虽然经历了大量解释和安抚工作，但公司将该漏洞修复列入了安全公告。用户反而给了你们好评——"这家公司诚实"。信任是做出来的——不是瞒出来的。' },
+    { sceneName:'⏰ 凌晨3点', title:'线上故障', bg:'linear-gradient(180deg, #1a0808 0%, #3d1515 35%, #16213e 100%)', accent:'#ff6b6b',
+      dialogText:'凌晨3点被紧急叫起来——生产系统大面积瘫痪，用户电话打爆了客服。你快速分析发现是某个配置改动引发连锁反应——有快速恢复方案但可能丢失少量数据;另一个安全方案但恢复需要2小时——',
+      aEmoji:'⚡', aLabel:'用快速方案先救火', aDesc:'用户等不及了，先用风险方案恢复再说', aFeedback:'系统在15分钟内恢复了但丢失了一小部分交易数据——后续花了两周时间找补和赔付。紧急情况下的决定往往持续时间最长——权衡速度时也要计算"修复成本"。',
+      bEmoji:'🛡️', bLabel:'安全恢复+保持用户沟通', aDesc:'让用户知道"正在处理"，选择无数据丢失的方案', bFeedback:'你选择了慢但安全的方案。同时安排客服持续更新用户状态——"正在紧急修复中"。虽然耗时但数据完整恢复。而且因为沟通及时，用户反而没有大量流失。故障无法完全避免——但信任可以在故障中强化。' },
+    { sceneName:'🏗️ 项目交付', title:'技术债务的隐患', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'项目成功交付——但你知道为了赶进度，有些模块是临时方案。这些"技术债"就像信用卡欠款一样——拖得越久利息越高。但下个项目已经排满了日程——',
+      aEmoji:'🏃', aLabel:'继续做下个项目', aDesc:'等有问题了再来修', aFeedback:'半年后临时方案在高峰负载下崩溃——当初1个月能修好的事现在花了3个月。技术债务的"利息"比你想象的快。',
+      bEmoji:'🔧', bLabel:'预留20%时间重构关键模块', aDesc:'用工匠精神打磨代码', bFeedback:'你争取到20%的工作时间用于清理技术债。虽然进度稍慢但在后续项目中发现Bug减少了40%。工程不是盖完就走的——是要长期维护的。可持续发展来自持续清理债务。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中国科技馆·工程技术展厅',location:'北京',desc:'动手体验机械原理、桥梁搭建、电力传输等工程实验',url:'https://cstm.cdstm.cn/'},
+      {name:'北京理工大学·中国工程科技馆',location:'北京',desc:'参观高校工程实验室，看工程师如何研发创新',url:'https://www.bit.edu.cn/'},
+    ],
+    practices:[
+      {name:'中国科技馆·青少年编程俱乐部',location:'北京',desc:'学习编程和机器人搭建，用工程思维解决实际问题',url:'https://cstm.cdstm.cn/'},
+      {name:'北京创客马拉松（少儿版）',location:'北京',desc:'限时挑战：用电子元件和材料制作一个发明的原型',url:'https://www.chaihuo.org/'},
+    ],
+    books:[
+      {name:'《给孩子的工程思维课》',desc:'通过趣味设计挑战教孩子像工程师一样思考和解决问题'},
+      {name:'《万物运转的秘密》',desc:'用精美的剖面图揭示从自行车到火箭的机械原理'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🌉',title:'工程师要学得最多的不是技术',desc:'研究表明优秀工程师花20%的时间写代码，80%的时间"沟通需求、讨论方案、调试集成"。技术是硬功夫——但协作能力往往是决定一个工程师能走多远的软实力。'},
+    {emoji:'💥',title:'大多数工程进步来自失败',desc:'塔科马大桥、挑战者号航天飞机——每一次工程的惨痛失败都教会了行业新的安全标准。工程师不怕失败——怕的是失败后不明白为什么。正因为这些"昂贵的教训"，今天的世界更安全。'},
+    {emoji:'🔄',title:'工程师写的代码70%的时间在"维护"',desc:'新功能只占工程师工作的一小部分。大部分时间在"为什么一年前写的代码是这种结构？"和"如何让系统在用户量翻倍后还能跑？"。工程设计不只是为今天——更是为5年后那个在凌晨3点修复故障的人。'},
+  ],
+},
+
+productManager: {
+  id:'productManager', name:'产品经理', emoji:'📱', tagline:'发现真正的需求，创造有价值的产品',
+  field:'互联网/科技', funFact:'你手机里90%的App在1年内被用户删除——好的产品经理正是那些让用户"留下来"的人📱',
+  intro:'产品经理是发现用户需求、设计产品方案、推动团队把产品做出来的人。从你用的微信到饿了么外卖——每个产品背后都有产品经理在想"怎样让用户更方便"。他们是"产品的CEO"。',
+  timeline:[
+    {era:'古代',emoji:'🛒',text:'古代集市上的"中间人"是最早的产品经理——发现村民需要什么、让工匠去制作、在集市上售卖。他们连接了需求和供给。'},
+    {era:'现在',emoji:'📱',text:'现代产品经理用数据分析、用户研究、原型设计来创造数字产品——每做一个功能都要思考"用户真的需要吗"。'},
+    {era:'未来',emoji:'🤖',text:'AI可以分析数据但无法"共情"用户——最好的产品经理靠的不是数据，而是"理解人"。这个能力机器永远学不会。'},
+  ],
+  abilities:[
+    {name:'用户共情力',emoji:'💛',subject:'心理学·社会学',def:'站在用户的视角看问题，理解他们没说出口的困扰。'},
+    {name:'逻辑分析力',emoji:'🧩',subject:'数学·逻辑',def:'用数据说话，从数字中发现趋势和问题。'},
+    {name:'沟通表达力',emoji:'🗣️',subject:'语文·演讲',def:'把想法清晰地传达给设计师、工程师和老板——让所有人对齐方向。'},
+    {name:'决策判断力',emoji:'⚖️',subject:'批判性思维',def:'在有限信息下做取舍——做什么比不做什么更重要。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'数据回顾',desc:'查看昨天发布的功能数据如何',emoji:'📊'},
+    {time:'👥 上午',title:'用户访谈',desc:'和真实用户聊天，了解他们的痛点',emoji:'🎤'},
+    {time:'📝 下午',title:'写需求文档',desc:'把想法变成工程师能实现的方案',emoji:'✍️'},
+    {time:'🤝 傍晚',title:'团队同步',desc:'和设计、开发对齐进度和问题',emoji:'💬'},
+  ],
+  figures:[
+    {name:'张小龙',title:'微信之父',emoji:'🇨🇳',story:'张小龙创造了微信——但他最令人佩服的不是技术，而是一句"好的产品是用完即走的"。一个产品经理想的是"用户需要什么"，而不是"怎样让用户上瘾"。这种克制和对用户的善意定义了什么是好的产品。'},
+    {name:'史蒂夫·乔布斯',title:'产品教父',emoji:'🍎',story:'乔布斯说"人们不知道他们想要什么，直到你给他们看"。他创造了iPhone——一个没有键盘的手机，当时所有人都说"不可能好用"。但他比别人更早看到了"人们内心深处还不自知的渴望"。'},
+  ],
+  scenes: [
+    { sceneName:'📋 需求评审会', title:'优先级之战', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'老板想做大改版，销售部要加付费功能，用户反馈某个Bug需要修。只有一个工程师团队——只能选一件事先做。争论不休——',
+      aEmoji:'👔', aLabel:'先做老板要的大改版', aDesc:'老板说了算，改完再搞其他的', aFeedback:'新版本上线了但用户抱怨连连——核心功能没改进反而增加了复杂度。满足老板和满足用户往往是两回事——用户不关心"老板怎么想"。',
+      bEmoji:'👤', bLabel:'用用户数据决定优先级', aDesc:'看哪件事对最多用户的价值最大', bFeedback:'你用数据显示修复那个Bug影响30%用户，而大改版只是老板的一个想法。你说服了团队先修Bug——用户满意度当月飙升。数据是产品经理的"超能力"——用事实说服，而不是用职位。' },
+    { sceneName:'💬 用户访谈室', title:'用户的"谎言"', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'用户访谈中所有受访者都说"我会付费"。但你从实际数据知道——他们不会。面对这种"嘴上说要实际不做"的情况——',
+      aEmoji:'✅', aLabel:'相信用户说的', aDesc:'既然大家都说要，肯定是有需求', aFeedback:'做了付费功能上线后转化率不到受访者比例的1/10。用户嘴上说"愿意"不代表实际上会掏钱——用户说的和做的是两回事。',
+      bEmoji:'🔍', bLabel:'设计小规模实验验证', aDesc:'用最小成本测试真实行为', bFeedback:'你先做了一个小实验——在现有产品里放一个"假付费按钮"看点击率，发现只有2%的人点击（远低于访谈说的40%）。避免了几个月的无用功。产品经理的信条：不信口说，信行为。' },
+    { sceneName:'🎨 设计评审', title:'数据vs直觉', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'设计师提出了一个数据上看不出来的创意——非常大胆、可能改变产品的方向。但数据说"应该按目前路线走"。你要决定——',
+      aEmoji:'📊', aLabel:'按数据做确定的事', aDesc:'数据不会说谎，不要冒险', aFeedback:'产品稳步增长但无惊喜。数据只会告诉你"过去发生了什么"——但不会告诉你"可以发生什么"。只靠数据做产品，和只靠后视镜开车一样——能走但不会有惊喜。',
+      bEmoji:'🧪', bLabel:'小范围测试这个创意', aDesc:'数据是地图，创意是探险', bFeedback:'你给了设计师一个极简版本——用很小的用户群测试。数据反馈惊人地好，这个创意后来成了产品的标志性功能。数据告诉你路在哪，但创意告诉你还有其他的路。' },
+    { sceneName:'⚡ 上线前夜', title:'是否推迟上线', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'大版本明天上线——测试发现一个偶发性Bug，概率约3%。修的话要推迟一周，不修的话影响3%用户。市场部已经宣传出去了——',
+      aEmoji:'🚀', aLabel:'如期上线', aDesc:'3%风险可以接受，后续修复', aFeedback:'上线后3%的用户遇到了Bug——但他们在社交媒体上发出了巨大的声量，造成了品牌损伤。1个用户发抱怨贴可能影响1000个潜在用户——你的"3%"会被放大。',
+      bEmoji:'🛡️', bLabel:'推迟上线修复', aDesc:'短期丢面子，长期保信任', bFeedback:'推迟导致一些失落，但产品上线时非常稳定。用户说"等一周换来的是流畅的产品——值得"。产品经理的勇气在于敢说"还没准备好"——而不是"先发了再说"。' },
+    { sceneName:'💰 商业决策', title:'免费还是收费', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'核心功能要不要收费？收费能马上有收入，但会减少用户数。免费能快速积累用户，但投资人会问"你们怎么赚钱"——',
+      aEmoji:'💰', aLabel:'核心功能收费', aDesc:'好产品就应该收费，没有收入不是好生意', aFeedback:'收费墙挡住了潜在用户——在你积累足够价值之前就设门槛，相当于自断生路。用户说"我还不知道值不值得付钱"。',
+      bEmoji:'🎁', bLabel:'核心功能免费+增值服务收费', aDesc:'先让用户爱上产品，再提供付费选项', bFeedback:'免费基础上很多人用了进来。当用户依存度增加后，增值服务收费转化率达到预期。先创造价值，再分享价值——这个顺序不能反。' },
+    { sceneName:'🏢 跨部门会议', title:'部门利益之争', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'市场部要在产品里加大量广告位赚钱；技术部想重构技术基础。两边来找你站队——但你关心的是"用户体验"——',
+      aEmoji:'🤝', aLabel:'两边都答应一些', aDesc:'各取一半，谁也不得罪', aFeedback:'最后做了一个"大杂烩"——没人满意。试图让每个人都高兴往往让没一个人高兴。',
+      bEmoji:'🎯', bLabel:'回到用户视角分析', aDesc:'帮两部门理解——用户好了大家才会好', bFeedback:'你展示了数据：如果用户流失，市场部的广告位和技术部的新架构都没有意义。大家最终围绕"留住用户"达成了共识。产品经理不是和事佬——是坚守用户价值底线的人。' },
+    { sceneName:'📊 季末复盘', title:'失败的功能要删除吗', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'上个季度做的功能使用率极低——只有不到2%的人用过。团队士气低落——"我们花了3个月做了没人用的东西"。删除还是保留？',
+      aEmoji:'🗑️', aLabel:'删除没人用的功能', aDesc:'及时止损，简化产品', aFeedback:'删了确实让产品更简洁了——但你没有分析为什么使用率低。是没有需求？还是用户找不到？还是入口太深？删掉问题不等于解决问题。',
+      bEmoji:'🔬', bLabel:'分析为什么低，再决定', aDesc:'理解失败的真正原因', bFeedback:'分析发现功能本身需求是真实的——但入口设计太隐蔽。调整入口后使用率涨到15%。失败数据比成功数据更有用——因为成功教不了你什么，失败能教很多。' },
+    { sceneName:'🚀 新项目启动', title:'从零到一', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'被分配负责一个全新产品的探索——但公司没有给明确的KPI只让"发现机会"。你可以选最容易出业绩的赛道，或者选你真正关心但不确定能不能成功的方向——',
+      aEmoji:'📈', aLabel:'选最容易出业绩的', aDesc:'做项目就是要拿结果', aFeedback:'你做了一个安全的选择——中等成功，没有热情。产品经理如果自己不关心自己做的产品，产品怎么可能打动用户？',
+      bEmoji:'💡', bLabel:'选你真正好奇和相信的方向', aDesc:'热情是最稀缺的产品竞争力', bFeedback:'你选择了一个小众但自己关心的领域。初始用户少但极其忠诚，口碑传播慢但扎实。一年后社区生态形成——产品活了。最好的产品往往来自产品经理自己的"痒"——因为你也是用户。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中关村创业大街',location:'北京',desc:'参观科技公司、创业空间，看产品从创意到上线的全过程',url:'https://www.z-innoway.com/'},
+      {name:'百度/字节跳动展厅',location:'北京',desc:'走进互联网大厂展厅，了解产品背后的设计与技术',url:'https://www.baidu.com/'},
+    ],
+    practices:[
+      {name:'北京青少年产品思维工作坊',location:'北京',desc:'用乐高和画纸设计一个解决校园问题的App，从调研到原型',url:'https://www.bjcyc.com.cn/'},
+      {name:'中关村"生活小发明"创意赛',location:'北京',desc:'发现身边的痛点，设计一个简单的解决方案并展示',url:'https://www.z-innoway.com/'},
+    ],
+    books:[
+      {name:'《设计思维》少儿版',desc:'用故事教孩子用设计的眼光发现问题、提出创意解决方案'},
+      {name:'《小产品经理的大发现》',desc:'引导孩子观察日常生活中的好设计和坏设计'},
+    ],
+  },
+  discoveries: [
+    {emoji:'👤',title:'最伟大的产品往往来自"自己的痒"',desc:'Google创始人需要一个更好的搜索引擎、张小龙需要更好的沟通方式——很多伟大产品的起点都是"我自己需要这个东西但找不到"。产品经理不一定是旁观者做调研——往往自己就是最好的用户。'},
+    {emoji:'📊',title:'数据会"骗人"',desc:'数据显示用户在页面上平均停留3分钟——你以为内容很好。但其实可能是因为页面太复杂用户找不到想要的。同一组数据可以支持完全相反的结论——所以产品经理需要数据但更需要思考。'},
+    {emoji:'🗑️',title:'删除功能比添加更难',desc:'产品经理本能是"再加一个功能吧"。但最好的产品往往是最简洁的——敢说不、敢删除、敢保持专注。少做50%的功能，把剩下的150%做到极致——这需要巨大的勇气和判断力。'},
+  ],
+},
+
+mechanic: {
+  id:'mechanic', name:'修理工', emoji:'🔧', tagline:'让坏掉的东西重新运转——双手创造价值',
+  field:'维修/技术', funFact:'一辆普通汽车大约有30000个零件。一个好的修理工能从声音、震动、气味判断是哪一个出了问题——像车辆的"医生"🔧',
+  intro:'修理工是诊断和修复故障设备的技术专家——修汽车、家电、机器。当东西坏了，修理工用经验和工具找出问题、动手修好——是"机器和物品的医生"。',
+  timeline:[
+    {era:'古代',emoji:'🔨',text:'古代的工匠修理马车、农具、钟表。手工修理是每个村庄最重要的职业之一。'},
+    {era:'现在',emoji:'🔧',text:'现代修理工用电子诊断仪、3D打印零件——技术在变，但"用双手修复物品"的核心理念从未改变。'},
+    {era:'未来',emoji:'🔮',text:'物联网让设备能"自己报告故障"。但AI诊断出的问题还是需要人来修。修理工将拥有AR眼镜——戴上它就能看到机器的"透视影像"——维修效率提高但手艺依然是核心。'},
+  ],
+  abilities:[
+    {name:'诊断推理力',emoji:'🔍',subject:'物理·逻辑',def:'通过症状、声音、气味推理出故障的真正原因。'},
+    {name:'动手实践力',emoji:'🤲',subject:'工程·技术',def:'熟练使用工具，精确拆卸和组装零件。'},
+    {name:'耐心与细致',emoji:'🧘',subject:'心理素质',def:'一个小螺丝放错位置可能引起大问题——每一步都细心。'},
+    {name:'持续学习力',emoji:'📚',subject:'科学·技术',def:'新技术不断出现——修理工要不停学习新设备的结构和维修方法。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'接单检查',desc:'接车/接机器，初步诊断故障',emoji:'🔍'},
+    {time:'🔧 上午',title:'拆解维修',desc:'找到问题零件，动手修理或更换',emoji:'🛠️'},
+    {time:'✅ 下午',title:'测试验证',desc:'修好后反复测试确保没问题',emoji:'✔️'},
+    {time:'🗣️ 傍晚',title:'沟通交车',desc:'向客户解释修了什么、怎么保养',emoji:'🤝'},
+  ],
+  figures:[
+    {name:'张秉贵',title:'"一把抓"的全国劳模',emoji:'⭐',story:'张秉贵是售货员，但他把"抓糖"这件小事做到了极致——一把抓下去就是顾客要的重量，分毫不差。他告诉所有人：无论做什么工作，做到极致就是艺术。'},
+    {name:'高凤林',title:'火箭"心脏"焊接第一人',emoji:'🇨🇳',story:'高凤林为中国火箭发动机做焊接——0.16毫米的焊丝在0.01秒内精确融化。一个微小的气孔就可能让火箭爆炸。他把手做到了机器都做不到的精度——证明手艺人的价值远超想象。'},
+  ],
+  scenes: [
+    { sceneName:'🔍 维修车间', title:'故障诊断', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 35%, #16213e 100%)', accent:'#ffb74d',
+      dialogText:'客户说"车开起来有异响"。你试驾后听到了两种可能的声音——一种可能只是轮胎小石子（成本0），另一种可能轴承磨损（维修较贵）。但没有拆检无法确定——',
+      aEmoji:'🛞', aLabel:'先按简单问题处理', aDesc:'清理轮胎石子，如果还响再拆', aFeedback:'石子清了但异响还在——客户又跑了一趟，觉得你不专业。问题的严重程度不能靠猜——诊断是维修最重要的一步。',
+      bEmoji:'🔧', bLabel:'拆检确认后再修', aDesc:'花些时间诊断，确保一次修对', bFeedback:'你拆开检查发现确实是轴承问题——告知客户并解释原因后客户同意维修。修好后异响消失。客户说"你做事靠谱——以后就找你"。专业诊断是赢得信任的第一步。' },
+    { sceneName:'⚙️ 发动机拆解', title:'零件的取舍', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'发动机大修——发现一个齿轮磨损程度刚好在"还能用"和"该换了"的临界线上。如果换——客户要多花不少钱。如果不换——可能能用也可能不行——',
+      aEmoji:'🤞', aLabel:'不换——还能用', aDesc:'帮客户省钱，坏了再说', aFeedback:'半年后那个齿轮彻底坏了，客户在高速上抛锚——拖车费用远超换齿轮的钱。便宜的维修不一定省钱——有时今天省的小钱明天变成大帐单。',
+      bEmoji:'🔄', bLabel:'建议换——并用新旧对比解释', aDesc:'让客户看到磨损的差异，自己判断', bFeedback:'你拿着旧齿轮和新齿轮给客户看沟槽深度差异——客户自己决定换。后来他带朋友来说"这个师傅不替我做主，但他让我看懂了"。最好的服务不是替客户决定——是让客户有能力决定。' },
+    { sceneName:'💰 结算台', title:'成本和透明度', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'维修过程中发现了一个客户没报告的问题——需要额外更换零件，增加不少费用。但你有权决定——先斩后奏还是找客户商量——',
+      aEmoji:'🔧', aLabel:'先修了再说——反正需要', aDesc:'客户肯定希望修好，事后解释就行', aFeedback:'客户接到账单后大发雷霆——"为什么修之前不告诉我？"你觉得为他好，但他觉得被剥夺了知情权。信任不是做了对的事——是透明地做对的事。',
+      bEmoji:'📞', bLabel:'暂停维修联系客户说明', aDesc:'让客户有参与感——是他的车', bFeedback:'你打电话解释了问题并提供了选项——客户感谢你的透明，同意维修。他说"我最讨厌的就是修完了才知道修了什么"。每次先问再修——这个顺序就是专业和业余的区别。' },
+    { sceneName:'🏠 上门维修', title:'工具不够用', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'上门维修一台洗衣机——发现需要一种你工具箱里没有的专用卡扣。如果回店里拿来回要2小时。临时凑合一个替代件——有70%概率能用，但有风险——',
+      aEmoji:'🔩', aLabel:'用替代件临时凑合', aDesc:'回店里太费时间了，先试一下', aFeedback:'替代件撑了2天——洗衣机又坏了，客户打电话骂"你修的什么！"。临时应急方案不应该变成维修方案——你的名声是长期积累的，一次的失信会毁一万次的守信。',
+      bEmoji:'🏃', bLabel:'回店里拿正确的配件', aDesc:'多花两小时但确保修好', bFeedback:'你回去取专用零件——来回2小时但10分钟装好。客户看你满头大汗说"你这么认真我放心了"。后来他小区里的很多人都是你客户——口碑就是这样来的：多跑一步，多等一会儿，多做一点。' },
+    { sceneName:'📱 新设备', title:'修还是不修', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'年轻人送来一部摔坏的手机——屏幕碎了。但他告诉你"这是限定版，而且里面有已过世奶奶的照片。修屏幕很贵但他说值得"。但你知道这种老机型零件不好找——',
+      aEmoji:'📱', aLabel:'建议放弃——零件太旧', aDesc:'理性地说：不如买个新手机划算', aFeedback:'你说了实话，但年轻人的眼神让你难忘。维修对每个人来说意味着不同的东西——有时候不是零件值不值钱，是数据、记忆、情感。',
+      bEmoji:'🔍', bLabel:'花时间帮找零件', aDesc:'这个维修的意义不只是屏幕——而是帮他找回回忆', bFeedback:'你花了一周找到了旧零件并修好了屏幕。年轻人开机后看到奶奶的照片时流泪了。你收了正常价格——但你知道，有时候修好的不是一部手机，而是一个人与世界的联系。' },
+    { sceneName:'⚡ 深夜急修', title:'安全的底线', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'深夜接到急修电话——工厂的设备停了，流水线瘫痪。赶到现场发现电气系统短路——如果带电修有触电风险但能马上恢复生产，如果拉闸断电排查则工厂要多停2小时——',
+      aEmoji:'⚡', aLabel:'带电快速维修', aDesc:'工厂损失很大，你觉得自己能行', aFeedback:'这次你幸运地没出事故——但带电操作是维修工的最大忌讳。人不在了一切都白搭。一个负责任的手艺人——必须先确保自己能安全回家。',
+      bEmoji:'🔌', bLabel:'拉闸断电安全操作', aDesc:'安全永远比速度重要', bFeedback:'你坚持断电维修。老板一开始着急——但听你解释了触电风险和正确流程后安静了。修好后老板对你说"你这样做我很放心以后叫你"。勇气不是"敢冒险"——是"顶住压力坚持正确流程"。' },
+    { sceneName:'🎓 传艺', title:'带徒弟的方法', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'带了一个年轻徒弟，他总想走捷径——明明该拆5个螺丝他只拆3个就想撬开。你说他他不服"反正也能开"。旁边客户在等——',
+      aEmoji:'😤', aLabel:'严厉批评让他记住教训', aDesc:'不按规程操作迟早要出事的', aFeedback:'他低头不说话了——但心不服。严厉可以改变行为但不能改变态度。下次你不在的时候他还是会走捷径——因为没有内化的规矩只是恐惧。',
+      bEmoji:'💡', bLabel:'让他自己看撬开后的划痕', aDesc:'引导他发现"为什么多做两步是值得的"', bFeedback:'你让他用两种方法各修一个部件——让他自己看走捷径撬出来的划痕。他沉默了——不是因为你骂他，而是因为他亲眼看到了差别。"师父我现在懂了"。好的师傅不炫耀自己的厉害——而是让徒弟自己发现自己的不足。' },
+    { sceneName:'🏪 维修铺', title:'手艺的传承', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'在这个行业做了大半辈子——手艺好但生意越来越差。年轻人说"东西坏了直接换新的更便宜"。维修这个行业似乎在被忘记——',
+      aEmoji:'😞', aLabel:'认命——该退休了', aDesc:'时代变了，手艺不如从前了', aFeedback:'关了铺子——周围邻居失去的不只是一个维修店，而是一个"坏了能找人帮忙"的依赖。手艺人存在本身就在提醒人们：东西是可以被修好的，而不是被扔掉的。',
+      bEmoji:'📱', bLabel:'改变方式——拍视频教人修', aDesc:'把几十年的经验做成线上内容——让更多人学会"修而不是扔"', bFeedback:'你把一辈子积累的维修技巧拍成了系列短视频——意外地火了。很多人第一次学着修好了自己的电器，来评论区说"谢谢让我知道原来自己也能修好"。你发现你传承的不只是手艺——是一种"不放弃"的生活方式。' },
+  ],
+  resources: {
+    visits:[
+      {name:'北京汽车博物馆',location:'北京',desc:'看从老爷车到F1赛车——了解汽车构造和机械原理',url:'https://www.automuseum.org.cn/'},
+      {name:'北京科技馆·机械维修展区',location:'北京',desc:'动手拆解展示，了解维修师傅如何诊断故障',url:'https://cstm.cdstm.cn/'},
+    ],
+    practices:[
+      {name:'北京亲子拆装工作坊',location:'北京',desc:'在师傅指导下拆装旧闹钟、旧电器——了解内部构造',url:'https://www.chaihuo.org/'},
+      {name:'北京青少年机械探索营',location:'北京',desc:'学习使用基本工具、拆解小型发动机、了解机械原理',url:'https://cstm.cdstm.cn/'},
+    ],
+    books:[
+      {name:'《拆开看看——日常用品的内部世界》',desc:'用剖面图和拉页展示从手机到马桶的各种物品如何工作'},
+      {name:'《鲁班工坊》',desc:'动手制作小木质机关和玩具，训练手眼协调'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🔧',title:'现代维修不只用扳手，还用电脑',desc:'现在的汽车修理工不止手上有油——还手上有笔记本电脑。现代汽车装了上百个传感器，修理工先要用诊断仪"问"汽车它怎么了——然后再动手。维修已经是IT+手艺的融合。'},
+    {emoji:'♻️',title:'修理是最大的环保',desc:'每修好一件电器而不是丢掉换新——就减少了一份电子垃圾。全球每年产生超过5000万吨电子垃圾。修理工可能不知道自己同时在做环保——但其实每修复一次，就为地球减少了一次污染。'},
+    {emoji:'🧠',title:'最好的诊断工具是"经验直觉"',desc:'经验丰富的修理工有时听一声异响就知道哪儿坏了——这不只是耳朵好，是大脑中存储了成千上万个"声音-故障"的配对。这种直觉不是天生的——是大量练习后形成的"潜意识识别"。'},
+  ],
+},
+
+gameDesigner: {
+  id:'gameDesigner', name:'游戏策划', emoji:'🎮', tagline:'构建规则和世界，让玩家在体验中成长',
+  field:'游戏/互动娱乐', funFact:'全球有超过30亿人玩电子游戏——其中很多都在玩中国开发的游戏。游戏策划就是设计这些"让人沉浸的虚拟世界"的人🎮',
+  intro:'游戏策划是设计游戏玩法、规则、关卡和故事的人。他们在想"玩家在这里会做什么？这个挑战会不会太简单？什么让玩家觉得有趣？"——是"虚拟世界的造物主"。',
+  timeline:[
+    {era:'古代',emoji:'🎲',text:'古代人下围棋、掷骰子——游戏就是人类的本能。围棋规则极简但变化无穷——是最早的"游戏设计杰作"。'},
+    {era:'现在',emoji:'🎮',text:'电子游戏从简单的像素点到电影级的画质。游戏策划设计玩法、平衡数值、构建故事——让玩家在虚拟世界中获得成就和快乐。'},
+    {era:'未来',emoji:'🥽',text:'VR/AR游戏让玩家"进到"游戏世界。未来的游戏策划将用AI创造无限变化的世界——但核心还是那个古老的追问：什么让人感到有意思？'},
+  ],
+  abilities:[
+    {name:'逻辑数理力',emoji:'📐',subject:'数学·逻辑',def:'设计规则、数值、平衡——用数学让游戏"公平又有挑战"。'},
+    {name:'创意想象力',emoji:'💡',subject:'语文·艺术',def:'构建世界观、故事、角色——创造让人想探索的世界。'},
+    {name:'用户共情力',emoji:'❤️',subject:'心理学',def:'理解玩家在不同时刻的心理感受——什么时候开心、什么时候挫败、什么时候想放弃。'},
+    {name:'分析调整力',emoji:'📊',subject:'数据分析',def:'通过玩家数据看到"哪里设计不好"，快速迭代调整。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'体验竞品',desc:'玩其他游戏，分析为什么好玩',emoji:'🕹️'},
+    {time:'📝 上午',title:'撰写策划案',desc:'把想法写成开发团队能实现的文档',emoji:'✍️'},
+    {time:'🤝 下午',title:'团队沟通',desc:'和程序员、美术讨论实现方案',emoji:'💬'},
+    {time:'🎮 傍晚',title:'试玩测试',desc:'亲自玩自己设计的关卡找问题',emoji:'🔍'},
+  ],
+  figures:[
+    {name:'宫本茂',title:'马里奥之父',emoji:'🍄',story:'宫本茂设计了超级马里奥、塞尔达传说——他的游戏让全世界的孩子都爱上了探索。他说"游戏就是让玩家感觉自己很厉害"——好的设计不是炫耀设计师多聪明，而是让玩家觉得自己聪明。'},
+    {name:'陈星汉',title:'情感游戏先驱',emoji:'🎐',story:'陈星汉创造了《风之旅人》——一个没有打斗、没有敌人的游戏。两个陌生玩家只能在沙漠中帮助对方——这种"陌生人之间的善意"让很多玩家流下了眼泪。他证明：游戏也可以是艺术品。'},
+  ],
+  scenes: [
+    { sceneName:'🧩 设计室', title:'难度太高还是太低', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'测试玩家玩了你设计的关卡——第一批人说"太简单了无聊"，第二批人说"太难了想放弃"。两边的反馈完全相反——',
+      aEmoji:'📈', aLabel:'调成中等难度', aDesc:'折中方案，两边都照顾', aFeedback:'调整后两边都不满意——简单玩家觉得还是难，硬核玩家觉得没意思。讨好中间结果是所有人都不爽。',
+      bEmoji:'🎯', bLabel:'提供难度选项+动态调节', aDesc:'不同玩家不同难度，游戏自动在"够不着"和"能碰到"之间平衡', bFeedback:'你设计了难度选项+死亡后自动微调难度的系统。两种玩家都能找到自己的乐趣。好的设计不是让所有玩家玩同一个游戏——是让不同玩家都觉得自己在"为自己设计的游戏"里。' },
+    { sceneName:'💡 创意会', title:'原创还是借鉴', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'头脑风暴——团队提出了两个方案：A是市场上验证过的成熟玩法（换皮但安全），B是你自己的原创玩法（没人试过，可能失败也可能大获成功）——',
+      aEmoji:'🛡️', aLabel:'选成熟玩法', aDesc:'市场已验证，降低失败风险', aFeedback:'游戏做得不错但评价是"又一款XX"。没有自己的特色就没有记忆点——被遗忘是游戏的第二种死亡。',
+      bEmoji:'🚀', bLabel:'支持原创+小规模测试', aDesc:'先用极低成本做一个可玩版本测反响', bFeedback:'你用最简单的美术和代码做了一个原型——找了10个目标玩家试玩。反响超出了预期。你基于反馈优化后发布了成品——成为了小众但口碑极好的作品。原创不是赌博——是用低成本验证高风险创意。' },
+    { sceneName:'💰 商业化', title:'付费设计的底线', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'发行商要求加入"抽卡"机制——花钱抽稀有角色。你知道这种机制很容易让玩家上瘾不停花钱——尤其对年龄小的玩家。但这是行业惯例——',
+      aEmoji:'💸', aLabel:'按发行商要求做', aDesc:'行业都这样，不改就没人投资了', aFeedback:'上线后收入很高——但有家长投诉，媒体也点名批评。当游戏被叫做"电子赌博"时，你心里清楚——某些机制的确在用心理陷阱刺激盲目消费。',
+      bEmoji:'🎁', bLabel:'重新设计——只有外观付费', aDesc:'不影响游戏进程的道具收费，不利用成瘾机制', bFeedback:'发行商不太满意但同意了试试看。游戏上线后收入没有抽卡模式高——但玩家评价清一色"良心游戏"。留存率和口碑远超预期，长期收入反而更稳定。玩家信任你一次，就愿意为你花钱很多次。' },
+    { sceneName:'🗣️ 玩家社区', title:'社区愤怒了', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'游戏更新了一个角色平衡性改动——结果社区"炸了"。几千条骂声、退款请求、满星差评。技术团队说"数据上这个改动是对的"但玩家就是愤怒——',
+      aEmoji:'📊', aLabel:'数据是对的——坚持不撤回', aDesc:'玩家的反应会过去，改回去显得不专业', aFeedback:'数据确实好了——但玩家数两周内掉了30%。游戏不是数学模型——玩家的情感投入才是游戏活的源泉。',
+      bEmoji:'💬', bLabel:'发公告道歉+解释+给出补偿', aDesc:'承认改动太剧烈，后续会更多沟通', bFeedback:'你发了一篇公开信——承认改动之前没有和社区沟通。给出了补偿并承诺未来重要改动提前征求意见。玩家从骂变成了"算你还有心"。游戏策划和玩家之间的关系不是"发布者与接受者"——是"共同创造者"。' },
+    { sceneName:'📋 项目中期', title:'砍掉心爱的功能', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'你设计了一个自己特别喜欢的功能——但测试发现只有极少玩家会用，做它需要大量开发资源。团队说"砍掉吧"。但它是你的"孩子"——',
+      aEmoji:'💔', aLabel:'坚持保留这个功能', aDesc:'好东西会证明自己——给它一个机会', aFeedback:'功能上线后用量极低——你的"喜欢"不代表玩家的需求。设计师最容易犯的错误：把自己的偏好当成玩家的偏好。',
+      bEmoji:'✂️', bLabel:'忍痛砍掉+把核心做好', aDesc:'保留好的创意留给下一款游戏', bFeedback:'砍掉后用省下的资源打磨了核心玩法——游戏体验紧凑而精致。那个被砍的功能后来成为了续作的核心特色——好创意不浪费，只是在等对的时刻。' },
+    { sceneName:'🔧 测试期', title:'BUG还是特性', bg:'linear-gradient(180deg, #152525 0%, #1a3535 40%, #16213e 100%)', accent:'#80cbc4',
+      dialogText:'测试中发现一个"BUG"——角色卡入墙壁后能探索隐藏区域。玩家反馈这个BUG很好玩。项目经理说"修复它——这不是设计的"。但它意外地增加了探索乐趣——',
+      aEmoji:'🐛', aLabel:'修复这个BUG', aDesc:'那不是设计——是错误', aFeedback:'BUG修掉了——但社区有人怀念"那个好玩的BUG"。好的游戏有时就是"意外诞生的设计"——设计师要会区分"坏的意外"和"好的意外"。',
+      bEmoji:'✨', bLabel:'保留并强化为正式特性', aDesc:'这不是BUG——是玩家发现的隐藏玩法', bFeedback:'你把这个"BUG"保留了下来——还在其他关卡增加了类似的"隐藏区域"。社区称它为"年度最佳特性"。好的策划愿意倾听玩家的玩法——而不是坚持只有自己设计的才是对的。' },
+    { sceneName:'🌍 本地化', title:'文化的取舍', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'游戏出海——要在不同国家发行。有些设计可能引起特定文化的不理解。销售团队说"为每个市场改太贵了——套个翻译就行"。但你知道不同文化对内容的感受完全不同——',
+      aEmoji:'🌐', aLabel:'统一版本全球发行', aDesc:'改来改去太麻烦，玩家会理解的', aFeedback:'游戏在一些市场出现了文化争议——一个小小的细节引发了抵制。全球化的前提是尊重本地文化——否则你的"全球化"只是"以自己为中心的全球化"。',
+      bEmoji:'🤝', bLabel:'请当地玩家做文化顾问', aDesc:'花额外时间为每个市场做调整', bFeedback:'你请了多个国家的当地玩家测试内容——发现了很多自己永远不会意识到的文化敏感点并调整。游戏出海后受到了各个市场的好评。好的全球化不是"翻译文字"——是"把你的设计翻译成别人的文化"。' },
+    { sceneName:'🎓 上线后', title:'关注的指标', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'游戏上线——关注人数、收入、留存率。但数据只能反映"玩家做了什么"——不能反映"玩家感觉如何"。有一个指标一直不好看：玩家在第3关卡住了大量流失——',
+      aEmoji:'📉', aLabel:'看数据优化转化率', aDesc:'把第3关难度降低，减少流失', aFeedback:'流失率下降了但后期玩家抱怨"游戏前期很无聊"。你为了数据牺牲了体验——"优化指标"是工具不是目标。',
+      bEmoji:'🎮', bLabel:'自己玩第3关+看玩家录像', aDesc:'不看数据看行为——理解为什么玩家离开', bFeedback:'你看了玩家录像——发现他们不是觉得"太难"，而是第3关缺少"新鲜感"。加入新元素后流失自然降到正常。数据告诉你"有人走了"——但只有亲自体验才能告诉你"为什么"。' },
+  ],
+  resources: {
+    visits:[
+      {name:'完美世界/搜狐畅游游戏公司',location:'北京',desc:'参观游戏公司，看游戏是如何从创意到上线的',url:'https://www.pwrd.com/'},
+      {name:'中国科技馆·虚拟现实体验区',location:'北京',desc:'体验VR/AR技术，感受交互式虚拟世界',url:'https://cstm.cdstm.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年游戏设计工作坊',location:'北京',desc:'用纸笔和简单工具设计桌游或简单的电子游戏',url:'https://www.bjcyc.com.cn/'},
+      {name:'中国科技馆·Scratch游戏设计营',location:'北京',desc:'用Scratch工具设计自己的小游戏',url:'https://cstm.cdstm.cn/'},
+    ],
+    books:[
+      {name:'《游戏设计梦工厂》少儿版',desc:'从卡牌游戏到电子游戏——设计游戏的基本原理'},
+      {name:'《规则很有趣》',desc:'探索游戏规则如何创造乐趣和挑战'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🧠',title:'"心流"是游戏的秘密',desc:'心理学家发现当难度刚好在"能完成但需要努力"时——人会进入一种忘我的状态叫"心流"。最好的游戏就在这个"甜蜜点"上——不太简单到无聊、不太难到放弃。这就是为什么游戏能让人"忘了时间"。'},
+    {emoji:'🎲',title:'最早的"电子游戏"是什么？',desc:'棋盘游戏和骰子是人类最早的游戏——几千年来规则不断演变但核心乐趣不变。所以好游戏策划不只玩电子游戏——也研究桌游、博弈论、心理学。最古老的问题"什么让人感到有意思"到今天也没完全搞清楚。'},
+    {emoji:'🌍',title:'游戏为什么让人上瘾？',desc:'游戏会触发大脑的多巴胺释放——一种让你感到快乐和激励的化学物质。但好的游戏策划不利用这一点——而是用有趣的设计让玩家自愿、主动地想要挑战。上瘾和乐趣不是一回事。好的游戏让你"想玩"——而不是"停不下来"。'},
+  ],
+},
+
+host: {
+  id:'host', name:'主持人', emoji:'🎤', tagline:'掌控全场——用声音和智慧连接每一个人',
+  field:'传媒/演艺', funFact:'一个大型直播晚会主持人要记住大约100页的台本和流程——还要随时应对任何可能的意外。这是大脑在"高强度多线程"下的极限挑战🎤',
+  intro:'主持人是活动的掌控者——站在舞台中央，串联节目、采访嘉宾、应对突发状况。从电视节目到婚礼现场，主持人用声音、智慧和魅力让一切有序而精彩——是"现场的指挥家"。',
+  timeline:[
+    {era:'古代',emoji:'🎭',text:'古代祭祀、庆典上的"赞礼"是最早的主持人——用有韵律的语言带领仪式。说书人在茶馆里讲故事，也是主持人的雏形。'},
+    {era:'现在',emoji:'📺',text:'现代主持人活跃在电视、网络直播、各类活动中——直播时代下，主持人的反应速度和真实感比"完美的稿子"更重要。'},
+    {era:'未来',emoji:'🤖',text:'AI可以播报新闻但不会"共情"——一个好的主持人能让现场几千人同时笑、同时哭、同时鼓掌。这种"心灵的指挥"AI做不到。'},
+  ],
+  abilities:[
+    {name:'语言表达力',emoji:'🗣️',subject:'语文·演讲',def:'用清晰、生动、有感染力的语言让全场的注意力跟着你走。'},
+    {name:'临场应变力',emoji:'⚡',subject:'心理素质',def:'直播中设备坏了、嘉宾说错话了——瞬间判断、立刻应对。'},
+    {name:'共情连接力',emoji:'💛',subject:'情商·沟通',def:'快速感知现场氛围，调整语气和节奏，让每个观众都觉得你在和TA说话。'},
+    {name:'知识储备力',emoji:'📚',subject:'各学科',def:'一个好的主持人是一个"杂家"——什么都要知道一点，才能和任何嘉宾都能聊起来。'},
+  ],
+  workScenes:[
+    {time:'🌅 早上',title:'准备台本',desc:'熟悉流程、写串词、了解嘉宾背景',emoji:'📝'},
+    {time:'🎤 上午',title:'彩排预演',desc:'走流程、试话筒、调整节奏和站位',emoji:'🎬'},
+    {time:'✨ 下午',title:'正式录制/直播',desc:'站上舞台/镜头前——现场展现',emoji:'🌟'},
+    {time:'📹 傍晚',title:'复盘总结',desc:'回顾表现，哪里可以更好',emoji:'🔍'},
+  ],
+  figures:[
+    {name:'董卿',title:'央视金牌主持人',emoji:'🇨🇳',story:'董卿主持了多年的春节联欢晚会——她的端庄和智慧让全国观众感到温暖。她说"主持人不是在表演——是在真诚地和每一个人对话"。一个主持人最大的魅力不是技巧，是"真"。'},
+    {name:'何炅',title:'综艺主持常青树',emoji:'🎤',story:'何炅以超强的临场反应著称——任何意外到他那里都能变成看点。有一次嘉宾说错话——他立刻接过去圆了场，观众完全没发现。几十年的主持生涯，口碑几乎完美——靠的是实力和人品。'},
+  ],
+  scenes: [
+    { sceneName:'🎬 直播现场', title:'意外发生了', bg:'linear-gradient(180deg, #1a1520 0%, #2d2540 35%, #16213e 100%)', accent:'#ce93d8',
+      dialogText:'大型直播晚会——你正在串场，突然提词器全部黑屏了！工作人员在台下急得挥手。数百万人在观看——你下一句该说什么完全想不起来——',
+      aEmoji:'😰', aLabel:'喊停——紧急插播广告', aDesc:'先停下来再说，不能冒险', aFeedback:'广告确实给了缓冲——但全场和电视机前的观众都感觉到了中断。观众会原谅一次技术故障，但会记住"这个主持人慌了"。',
+      bEmoji:'😊', bLabel:'微笑即兴说——"看来科技也想给我一个挑战"', aDesc:'用幽默化解技术故障，继续凭记忆完成串场', bFeedback:'你笑着说"看来科技也想给我一个挑战"，观众笑了。你用记忆完成了后续串场。后台恢复后导演在耳机里说"谢谢——你救了这场晚会"。最好的主持不是不遇到意外——是让观众感觉"一切都是安排好的"。' },
+    { sceneName:'🎤 访谈间', title:'嘉宾沉默不语', bg:'linear-gradient(180deg, #1a2518 0%, #2d4025 40%, #16213e 100%)', accent:'#81c784',
+      dialogText:'你采访一位重要嘉宾——问他"做这件事时想过放弃吗？"他突然沉默了——眼眶有点红。你明显的下一个问题就在嘴边——',
+      aEmoji:'⏭️', aLabel:'立刻跳到下一个话题', aDesc:'保护嘉宾的面子，避免尴尬场面', aFeedback:'你跳过了它但气氛没完全恢复。观众感觉到了"躲闪"——而且你错过了可能是访谈中唯一真实的一刻。',
+      bEmoji:'🤲', bLabel:'安静地等+递上一杯水', aDesc:'不问——给他空间，让沉默本身成为对话的一部分', bFeedback:'你安静了10秒钟——然后嘉宾自己开口说出了最打动人的话——他妈妈临终前让他"别放弃"。全场安静了。那"10秒的沉默"比你准备的任何问题都珍贵。主持人要会问——但更要会等。' },
+    { sceneName:'🎪 活动后台', title:'嘉宾临时换位', bg:'linear-gradient(180deg, #1a1208 0%, #2d1f0e 40%, #16213e 100%)', accent:'#ffc107',
+      dialogText:'节目流程临时打乱——某大牌嘉宾非要提前上台。你如按原计划会惹对方不高兴；如果答应——后面的流程就乱了——',
+      aEmoji:'✅', aLabel:'同意调整——哄住大牌', aDesc:'得罪不起，先安抚再说', aFeedback:'大牌满意了但后面所有嘉宾都乱了——你在后台道歉了一遍又一遍。"今天的所有人都太重要了"变成了空话——因为你的行为证明"重要的只是一个人"。',
+      bEmoji:'🤝', bLabel:'协商——给他选项而非让步', aDesc:'解释实际情况并给出替代方案', bFeedback:'你和对方商量换到稍早一点的顺位——既满足了他的需求又不至于打乱整体。他反而尊重你的坚持。主持人不是"谁厉害听谁的"——是"维护规则也让每个人舒服"。' },
+    { sceneName:'💬 直播间', title:'争议话题来了', bg:'linear-gradient(180deg, #1a1a25 0%, #252540 40%, #16213e 100%)', accent:'#ff8a80',
+      dialogText:'直播连线——热心观众提出了一个尖锐又引发争议的问题。如果讨论——可能引发冲突甚至冒犯部分观众；如果回避——显得"没胆量"——',
+      aEmoji:'🤐', aLabel:'婉转带过换下一个', aDesc:'安全第一，直播别惹麻烦', aFeedback:'弹幕立刻刷"怕了"。回避一个合理问题会让人觉得主持人在"保护"什么——信任开始动摇。',
+      bEmoji:'⚖️', bLabel:'感谢提问+客观呈现不同观点', aDesc:'问题不是炸弹——偏见才是', bFeedback:'你感谢了观众的提问并表示"这个问题确实有不少不同看法"。展示了正反两方的基本观点后以一种平衡的方式过渡。观众说"这个主持人有态度但很公平"。好的主持不是站队——是在混乱中提供平衡的视角。' },
+    { sceneName:'🌙 深夜直播间', title:'疲惫中的失误', bg:'linear-gradient(180deg, #0a1628 0%, #0d2847 40%, #16213e 100%)', accent:'#64b5f6',
+      dialogText:'连续主持多个小时——你无意中说错了一个嘉宾的名字。弹幕有观众指出。你可以当没看见——或者承认并道歉——',
+      aEmoji:'🤫', aLabel:'忽略——继续主持', aDesc:'停下来纠正反而放大错误', aFeedback:'错误过去了但网上有人截图"这个主持人叫错了名字都不纠正"。小的错误可以理解——但不纠正态度就成了大问题。',
+      bEmoji:'😅', bLabel:'笑着面对错误+更正', aDesc:'主动说"太累了说错了——真对不起，再来一次"', bFeedback:'你笑着说"刚才嘴漂了——再来一次正确版本"。观众纷纷发弹幕"没事""已经很厉害了"。把自己的小错误变成大家的一起笑——真诚比完美更让人亲近。' },
+    { sceneName:'🗣️ 评审现场', title:'选手失误后', bg:'linear-gradient(180deg, #1a0505 0%, #3d1010 35%, #1a1a3e 100%)', accent:'#ff5722',
+      dialogText:'比赛中——一位很年轻选手在表演中失误了，站在台上眼眶发红。全场安静得尴尬。作为主持人你是按流程让他下台——还是——',
+      aEmoji:'⏭️', aLabel:'按流程来——请评委打分', aDesc:'流程就是流程，不能为一个人特殊化', aFeedback:'按流程打分了但年轻选手哭着下台——观众说"主持好冷"。流程是规则但主持是"人"——观众来看的是人性时刻。',
+      bEmoji:'🤗', bLabel:'先安抚再继续', aDesc:'给选手一个"回血"的时刻——问他在练习中最开心的瞬间', bFeedback:'你走过去轻轻问他"练习过程中最开心的一刻是什么？"他回忆后露出了笑容——观众自发鼓掌。你让一个"失败"的舞台变成了一个"成长"的舞台。好的主持不是盯着流程——是看见舞台上的每一个人。' },
+    { sceneName:'📱 幕后', title:'主持人的定位', bg:'linear-gradient(180deg, #0a1a20 0%, #152535 40%, #16213e 100%)', accent:'#448aff',
+      dialogText:'有人评价你的风格"不够炸裂"。建议你"多抢戏、多搞笑、多让自己火"——"现在的主持人要有流量"。但你更喜欢让节目本身发光——',
+      aEmoji:'🎭', aLabel:'改变风格——更娱乐化', aDesc:'时代在变，适应一下', aFeedback:'你试着做了——但自己不舒服、观众也说"感觉不是你"。演艺不是让自己变成另一个人——那个人的位置已经被别人占了。',
+      bEmoji:'🎯', bLabel:'坚持自己——优化而非改变', aDesc:'不否认需要进步——但用适合自己的方式', bFeedback:'你继续低调但专业地主持——形成了"不抢戏但有温度"的独特风格。慢慢地有人专门因为是你的节目而收看。最好的风格是在人群中找到"别人不做但正好是你能做"的那个点。' },
+    { sceneName:'🎓 告别舞台', title:'最后一期节目', bg:'linear-gradient(180deg, #0a1a15 0%, #1a3d2e 40%, #16213e 100%)', accent:'#69f0ae',
+      dialogText:'做了多年的节目要结束了——你可以选择"华丽谢幕"大家感动送别；或者"如往常一样"让焦点永远在来宾身上——',
+      aEmoji:'🎉', aLabel:'做一个盛大的告别', aDesc:'让观众记住你——感动落幕', aFeedback:'告别仪式很感人——但你发现最后时段来宾的发言被压缩了。主持人的谢幕不该占用来宾的时间——这个舞台最终是属于内容的。',
+      bEmoji:'😊', bLabel:'正常主持+最后一刻简单说再见', aDesc:'最好的告别是不让观众觉得"少了你节目就结束了"', bFeedback:'你如常串场，只在最后淡淡说了句"这是一个周期的结束——谢谢所有给我们机会分享故事的人"。节目结束后观众自发制作了一个你的集锦。你不抢戏——戏却为你留了最好的位置。' },
+  ],
+  resources: {
+    visits:[
+      {name:'中央广播电视总台·央视大楼',location:'北京',desc:'参观演播室、控制室——看节目从制作到播出的全过程',url:'https://www.cctv.com/'},
+      {name:'北京广播电视台',location:'北京',desc:'体验直播、录播、配音等媒体工作台前幕后',url:'https://www.brtn.cn/'},
+    ],
+    practices:[
+      {name:'北京青少年演讲与口才俱乐部',location:'北京',desc:'学习公众演讲、即兴表达、辩论技巧',url:'https://www.bjcyc.com.cn/'},
+      {name:'北京"小主持人"培训',location:'北京',desc:'主持模拟节目、校园广播——实践是最好的练习',url:'https://www.bjedu.cn/'},
+    ],
+    books:[
+      {name:'《演讲的力量》少儿版',desc:'从TED演讲中学习如何讲好一个故事'},
+      {name:'《声音真好听》',desc:'发音练习、绕口令、朗读——让声音更有魅力'},
+    ],
+  },
+  discoveries: [
+    {emoji:'🎭',title:'主持人80%的沟通不在嘴上',desc:'研究发现，台上沟通55%靠肢体和表情，38%靠声音语调，只有7%靠说出来的词句。一个"话不多但很温暖"的主持人胜过"喋喋不休但没感情"的主持人。你不是用嘴主持——是用整个人在主持。'},
+    {emoji:'🎪',title:'即兴不是"乱来"——是"把排练融入肌肉记忆"',desc:'看起来信手拈来的即兴——其实是把几十套备用方案都背熟了。当大脑不用思考"该说什么"——它就能自动进入"该如何说的更好"的更高层次。即兴发挥的从容，来自事前的大量准备。'},
+    {emoji:'🧩',title:'主持人和观众之间有"看不见的绳子"',desc:'好的主持人能感知到整个房间的"气氛电流"——什么时候观众累了、什么时候注意力散了、什么时候需要笑一笑。这不是读心术——是对大量人类表情和行为的快速处理。这个能力可以练习：观察身边人，猜他们的情绪。'},
+  ],
+},
+
+}; // end careers object
+
+// ============================================================
+// 获取随机职业 & 构建决策树
+// ============================================================
+const careerIds = Object.keys(careers);
+
+function getRandomCareer() {
+  return careers[careerIds[Math.floor(Math.random() * careerIds.length)]];
+}
+
+function getCareerDecisionNodes(career) {
+  return buildDecisionTree(career.scenes, career.name);
+}
+
+// ============================================================
+// 星空背景
+// ============================================================
+function StarryBg({count=8}) {
+  const starEls = useRef([...Array(count)].map((_,i) => ({
+    x: 5 + Math.random()*90, y: 5 + Math.random()*90,
+    s: 8 + Math.random()*12, d: 3 + Math.random()*4,
+    dl: Math.random()*4, e: ['✨','⭐','💫'][Math.floor(Math.random()*3)]
+  }))).current;
+  return React.createElement('div', {className:'stars', style:{opacity:0.5}},
+    starEls.map((s,i) => React.createElement('span', {key:i, className:'star', style:{left:s.x+'%',top:s.y+'%',fontSize:s.s+'px','--d':s.d+'s','--dl':s.dl+'s'}}, s.e))
+  );
+}
+
+// ============================================================
+// 🦉 小知
+// ============================================================
+function Mascot({msg,pos='br'}) {
+  const ps = pos==='tl'?{top:16,left:16}:{bottom:16,right:16};
+  return React.createElement('div', {style:{position:'absolute',zIndex:100,display:'flex',alignItems:'flex-end',gap:10,...ps}, className:'fade-up'},
+    React.createElement('span', {className:'float', style:{fontSize:36,filter:'drop-shadow(0 4px 12px rgba(255,183,77,0.4))'}}, '🦉'),
+    msg && React.createElement('div', {style:{background:'rgba(255,255,255,0.12)',backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)',borderRadius:'16px 16px 16px 4px',padding:'10px 16px',maxWidth:220,fontSize:13,lineHeight:1.5,color:'rgba(255,255,255,0.9)',border:'1px solid rgba(255,255,255,0.1)'}}, msg)
+  );
+}
+
+// ============================================================
+// 阶段1: Loading
+// ============================================================
+function LoadingScreen({onDone}) {
+  const [pct,setPct] = useState(0);
+  useEffect(()=>{
+    const t=setInterval(()=>{setPct(p=>{if(p>=100){clearInterval(t);setTimeout(onDone,400);return 100}return p+Math.random()*15+5})},200);
+    return ()=>clearInterval(t);
+  },[]);
+  return React.createElement('div', {style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:32}, className:'bg'},
+    React.createElement(StarryBg, null),
+    React.createElement('div', {style:{fontSize:72}, className:'bounce-in'}, '🚀'),
+    React.createElement('h1', {style:{fontSize:28,fontWeight:700,background:'linear-gradient(135deg,#ffb74d,#ff8a80,#ce93d8)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}, className:'fade-up'}, '职业探索 Agent'),
+    React.createElement('p', {style:{color:'rgba(255,255,255,0.5)',fontSize:14}, className:'fade-up'}, '发现属于你的星辰大海'),
+    React.createElement('div', {className:'progress-bar fade-up'}, React.createElement('div', {className:'progress-fill', style:{width:pct+'%'}}))
+  );
+}
+
+// ============================================================
+// 阶段2: Hall (盲盒 — 随机职业)
+// ============================================================
+function MysteryBoxEntry({onFlip, career, onSelect}) {
+  const [opened,setOpened] = useState(false);
+  const [revealed,setRevealed] = useState(false);
+  const [selected,setSelected] = useState(false);
+
+  const handleOpen = ()=>{
+    if(opened)return;
+    setOpened(true);
+    if (!selected) { onSelect(); setSelected(true); }
+    setTimeout(()=>setRevealed(true),600);
+    setTimeout(()=>onFlip(),2200);
+  };
+
+  const burstEmojis = ['✨','💫','⭐','🌟','🚀','🪐','💡','🎉'];
+
+  if (!opened) {
+    return React.createElement('div', {style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:24,padding:24}, className:'bg'},
+      React.createElement(StarryBg, null),
+      React.createElement('div', {style:{textAlign:'center'}, className:'fade-up'},
+        React.createElement('h1', {style:{fontSize:30,fontWeight:700,marginBottom:8}},
+          '发现你的 ', React.createElement('span', {style:{background:'linear-gradient(135deg,#ffb74d,#ff8a80)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}, '星辰大海')
+        ),
+        React.createElement('p', {style:{color:'rgba(255,255,255,0.5)',fontSize:15}}, '点击盲盒，揭晓一个酷炫的职业！')
+      ),
+      React.createElement('div', {className:'mystery-box fade-up', onClick:handleOpen, style:{
+        background:'linear-gradient(145deg, rgba(255,183,77,0.15), rgba(255,138,128,0.1))',
+        border:'2px solid rgba(255,183,77,0.3)',
+      }},
+        React.createElement('div', {style:{position:'absolute',top:-10,right:-10,width:36,height:36,borderRadius:'50%',background:'rgba(255,183,77,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,animation:'float 2s ease-in-out infinite'}}, '❓'),
+        React.createElement('div', {style:{position:'absolute',bottom:-6,left:-8,width:28,height:28,borderRadius:'50%',background:'rgba(255,138,128,0.12)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,animation:'float 2.5s ease-in-out infinite',animationDelay:'0.5s'}}, '❓'),
+        React.createElement('span', {className:'float', style:{position:'relative',zIndex:1,fontSize:72}}, '🎁')
+      ),
+    );
+  }
+
+  return React.createElement('div', {style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:20,padding:24,position:'relative',overflow:'hidden'}, className:'bg'},
+    React.createElement(StarryBg, null),
+    ...burstEmojis.map((e,i)=>React.createElement('span', {key:i, style:{
+      position:'absolute',fontSize:18+Math.random()*22,
+      left:'50%',top:'45%',
+      '--bx':(-120+Math.random()*240)+'px',
+      '--by':(-100+Math.random()*200)+'px',
+      animation:'burstOut 0.8s ease-out forwards',
+      animationDelay:(0.1+i*0.05)+'s',
+      pointerEvents:'none'
+    }}, e)),
+    React.createElement('div', {style:{fontSize:72,animation:'boxOpen 0.5s ease-in forwards',position:'absolute'}}, '🎁'),
+    revealed && React.createElement('div', {style:{textAlign:'center',position:'relative',zIndex:10}},
+      React.createElement('div', {style:{fontSize:88,animation:'heroReveal 0.6s var(--bounce) forwards',filter:'drop-shadow(0 8px 40px rgba(255,183,77,0.5))'}}, career.emoji),
+      React.createElement('div', {className:'fade-up', style:{animationDelay:'0.5s',opacity:0,animationFillMode:'forwards'}},
+        React.createElement('p', {style:{fontSize:24,fontWeight:800,marginTop:8,background:'linear-gradient(135deg,#ffb74d,#ff8a80)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}, career.name),
+        React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.5)',marginTop:4}}, career.tagline)
+      )
+    )
+  );
+}
+
+// ============================================================
+// 阶段3: Career Intro
+// ============================================================
+function CareerIntro({onStart, career, onReroll}) {
+  const c = career;
+  return React.createElement('div', {className:'page bg'},
+    React.createElement(StarryBg, null),
+    React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))'}},
+      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onReroll}, '← 再抽一次'),
+      React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '职业介绍'),
+      React.createElement('div', {style:{width:60}})
+    ),
+    React.createElement('div', {className:'scroll', style:{paddingBottom:24}},
+      React.createElement('div', {style:{textAlign:'center',marginBottom:16}, className:'fade-up'},
+        React.createElement('div', {style:{fontSize:64,marginBottom:8}}, c.emoji),
+        React.createElement('h1', {style:{fontSize:30,fontWeight:700,marginBottom:4}}, c.name),
+        React.createElement('p', {style:{color:'rgba(255,255,255,0.45)',fontSize:15,marginBottom:12}}, c.tagline),
+        React.createElement('button', {className:'btn2', style:{fontSize:13,padding:'6px 18px',minHeight:34,opacity:0.55,borderColor:'rgba(255,255,255,0.1)'}, onClick:onReroll}, '不太感兴趣？换一个')
+      ),
+      // 简介
+      React.createElement('div', {className:'glass fade-up', style:{padding:20,marginBottom:16}},
+        React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:10}}, '简介'),
+        React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.75)',lineHeight:1.8}}, c.intro),
+        React.createElement('div', {style:{marginTop:12,padding:12,borderRadius:14,background:'rgba(255,183,77,0.06)',border:'1px solid rgba(255,183,77,0.12)'}},
+          React.createElement('p', {style:{fontSize:12,color:'rgba(255,183,77,0.6)',marginBottom:2}}, '趣知识'),
+          React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.7)',lineHeight:1.6}}, c.funFact)
+        )
+      ),
+      // 前世今生
+      React.createElement('div', {className:'glass fade-up', style:{padding:20,marginBottom:16}},
+        React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:16}}, '前世今生'),
+        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:0}},
+          c.timeline.map((h,i)=>React.createElement('div', {key:h.era, style:{display:'flex',gap:12,alignItems:'flex-start',padding:'12px 0',borderBottom:i<c.timeline.length-1?'1px solid rgba(255,255,255,0.06)':'none'}},
+            React.createElement('div', null,
+              React.createElement('p', {style:{fontSize:14,fontWeight:700,marginBottom:2,color:'var(--gold)'}}, h.era),
+              React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.7)',lineHeight:1.65}}, h.text)
+            )
+          ))
+        )
+      ),
+      // 核心能力
+      React.createElement('div', {className:'glass fade-up', style:{padding:20,marginBottom:16}},
+        React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:14}}, '需要哪些能力？'),
+        React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}},
+          c.abilities.map(a=>React.createElement('div', {key:a.name, style:{padding:14,borderRadius:16,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',gap:6}},
+            React.createElement('p', {style:{fontSize:14,fontWeight:700}}, a.name),
+            React.createElement('p', {style:{fontSize:11,color:'rgba(255,255,255,0.5)',lineHeight:1.5}}, a.def),
+            React.createElement('span', {style:{fontSize:10,padding:'3px 8px',borderRadius:8,background:'rgba(100,181,246,0.12)',color:'rgba(100,181,246,0.8)'}}, a.subject)
+          ))
+        )
+      ),
+      // 典型人物
+      React.createElement('div', {className:'glass fade-up', style:{padding:20,marginBottom:16}},
+        React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:14}}, `了不起的${c.name}`),
+        c.figures.map(f=>React.createElement('div', {key:f.name, style:{display:'flex',gap:12,alignItems:'center',padding:'12px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}},
+          React.createElement('div', {style:{flex:1}},
+            React.createElement('p', {style:{fontSize:15,fontWeight:700}}, f.name),
+            React.createElement('p', {style:{fontSize:12,color:'rgba(255,183,77,0.7)',marginBottom:2}}, f.title),
+            React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.6)',lineHeight:1.5}}, f.story)
+          )
+        ))
+      ),
+      // 一天
+      React.createElement('div', {className:'glass fade-up', style:{padding:20,marginBottom:16}},
+        React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:14}}, `${c.name}的一天`),
+        React.createElement('div', {style:{display:'flex',gap:8}},
+          c.workScenes.map((s,i)=>React.createElement('div', {key:i, style:{flex:1,textAlign:'center',padding:'12px 6px',borderRadius:14,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}},
+            React.createElement('p', {style:{fontSize:10,color:'rgba(255,183,77,0.6)',marginBottom:2}}, s.time),
+            React.createElement('p', {style:{fontSize:12,fontWeight:700,marginBottom:2}}, s.title),
+            React.createElement('p', {style:{fontSize:10,color:'rgba(255,255,255,0.5)',lineHeight:1.4}}, s.desc)
+          ))
+        )
+      ),
+      // CTA 按钮组
+      React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:10,alignItems:'center',padding:'8px 0 24px'}},
+        React.createElement('button', {className:'btn1', style:{fontSize:20,padding:'16px 40px',width:'100%',maxWidth:360}, onClick:onStart},
+          `想试试当一天${c.name}吗？`
+        )
+      )
+    )
+  );
+}
+
+// ============================================================
+// 阶段4: 决策树游戏引擎
+// ============================================================
+function DecisionPlayer({onDone, decisionNodes}) {
+  const TOTAL = 8;
+  const [nodeId,setNodeId] = useState('1');
+  const [history,setHistory] = useState([]);
+  const [phase,setPhase] = useState('playing');
+  const [lastPick,setLastPick] = useState(null);
+  const [animIn,setAnimIn] = useState(true);
+
+  const node = decisionNodes[nodeId];
+  const currentStep = history.length + 1;
+  const totalScore = history.reduce((s,h)=>s+h.score,0);
+
+  useEffect(()=>{setAnimIn(true);const t=setTimeout(()=>setAnimIn(false),400);return ()=>clearTimeout(t)},[nodeId]);
+
+  const choose = (key) => {
+    const ch = key==='A' ? node.choiceA : node.choiceB;
+    setLastPick({key,emoji:ch.emoji,label:ch.label,score:ch.score,feedback:ch.feedback,next:ch.next});
+    setHistory(h=>[...h,{nodeId,choice:key,score:ch.score,nodeTitle:node.title,nodeScene:node.sceneName}]);
+    setPhase('feedback');
+  };
+
+  const nextScene = () => {
+    if (history.length >= TOTAL) {
+      const finalScore = history.reduce((s,h)=>s+h.score,0);
+      onDone({history, totalScore:finalScore, passed:finalScore>=PASS_SCORE});
+    } else {
+      setNodeId(lastPick.next);
+      setLastPick(null);
+      setPhase('playing');
+    }
+  };
+
+  const skip = () => {
+    const dummyHistory = [];
+    let nid = '1';
+    for (let i=0; i<TOTAL; i++) {
+      const dn = decisionNodes[nid];
+      dummyHistory.push({nodeId:nid,choice:'skip',score:0,nodeTitle:dn.title,nodeScene:dn.sceneName});
+      nid = dn.choiceB.next || dn.choiceA.next;
+    }
+    onDone({history:dummyHistory, totalScore:0, passed:false});
+  };
+
+  const particles = useRef([...Array(4)].map((_,i)=>({
+    e:['✨','💫','⭐','🪐'][i],
+    x:15+Math.random()*70, y:10+Math.random()*80,
+    s:11+Math.random()*10, d:1.5+Math.random()*2
+  }))).current;
+
+  if (phase==='playing') {
+    return React.createElement('div', {style:{height:'100%',display:'flex',flexDirection:'column',position:'relative',background:node.bg}},
+      ...particles.map((p,i)=>React.createElement('span', {key:i, className:'fade-in', style:{position:'absolute',left:p.x+'%',top:p.y+'%',fontSize:p.s,opacity:0.12,animationDelay:i*0.2+'s',pointerEvents:'none'}}, p.e)),
+      React.createElement(StarryBg, null),
+      React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',paddingTop:'max(12px,var(--safe-t))',position:'relative',zIndex:10}},
+        React.createElement('button', {className:'btn2', style:{padding:'6px 14px',fontSize:13}, onClick:skip}, '跳过 ⏭️'),
+        React.createElement('div', {style:{display:'flex',alignItems:'center',gap:6}},
+          ...[...Array(TOTAL)].map((_,i)=>React.createElement('div', {key:i, className:'step-dot', style:{
+            background: i<history.length?node.accent:'rgba(255,255,255,0.15)',
+            boxShadow: i<history.length?`0 0 6px ${node.accent}`:'none'
+          }})),
+          React.createElement('span', {style:{fontSize:12,color:'rgba(255,255,255,0.4)',marginLeft:4}}, `${currentStep}/${TOTAL}`)
+        ),
+        React.createElement('div', {style:{width:50}})
+      ),
+      React.createElement('div', {className:animIn?'fade-up':'', style:{textAlign:'center',padding:'4px 20px 12px',position:'relative',zIndex:10}},
+        React.createElement('p', {style:{fontSize:13,color:node.accent,marginBottom:4,fontWeight:500}}, node.sceneName),
+        React.createElement('h2', {style:{fontSize:21,fontWeight:700}}, node.title)
+      ),
+      React.createElement('div', {className:'fade-up', style:{display:'flex',gap:10,alignItems:'flex-start',padding:'14px 16px',margin:'0 16px',borderRadius:18,background:'rgba(0,0,0,0.55)',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.1)',position:'relative',zIndex:10}},
+        React.createElement('span', {className:'float', style:{fontSize:30,flexShrink:0}}, '🦉'),
+        React.createElement('div', {style:{flex:1}},
+          React.createElement('p', {style:{fontSize:11,color:node.accent,marginBottom:4,fontWeight:600}}, '小知'),
+          React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.88)',lineHeight:1.65}}, node.dialogText)
+        )
+      ),
+      React.createElement('div', {style:{flex:1,display:'flex',flexDirection:'column',justifyContent:'center',gap:16,padding:'20px',position:'relative',zIndex:10}},
+        React.createElement('div', {style:{position:'absolute',inset:8,borderRadius:28,background:'rgba(0,0,0,0.3)',backdropFilter:'blur(4px)',WebkitBackdropFilter:'blur(4px)',border:'1px solid rgba(255,255,255,0.05)'}}),
+        React.createElement('button', {className:'fade-up dc-btn', onClick:()=>choose('A'), style:{
+          display:'flex',alignItems:'center',gap:14,padding:'18px 20px',
+          borderRadius:22,background:'rgba(255,255,255,0.06)',
+          border:'2px solid rgba(255,255,255,0.12)',cursor:'pointer',textAlign:'left',
+          color:'#fff',width:'100%',transition:'all 0.2s',
+          animationDelay:'0.1s',position:'relative',zIndex:1
+        }},
+          React.createElement('span', {style:{fontSize:18,fontWeight:700,flexShrink:0,width:28,height:28,borderRadius:'50%',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}, 'A'),
+          React.createElement('div', {style:{flex:1}},
+            React.createElement('p', {style:{fontSize:16,fontWeight:700,marginBottom:4}}, node.choiceA.label),
+            React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.45)'}}, node.choiceA.desc)
+          ),
+          React.createElement('span', {style:{fontSize:22,flexShrink:0,opacity:0.5}}, '→')
+        ),
+        React.createElement('button', {className:'fade-up dc-btn', onClick:()=>choose('B'), style:{
+          display:'flex',alignItems:'center',gap:14,padding:'18px 20px',
+          borderRadius:22,background:'rgba(255,255,255,0.05)',
+          border:'2px solid rgba(255,255,255,0.12)',cursor:'pointer',textAlign:'left',
+          color:'#fff',width:'100%',transition:'all 0.2s',
+          animationDelay:'0.25s',position:'relative',zIndex:1
+        }},
+          React.createElement('span', {style:{fontSize:18,fontWeight:700,flexShrink:0,width:28,height:28,borderRadius:'50%',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}, 'B'),
+          React.createElement('div', {style:{flex:1}},
+            React.createElement('p', {style:{fontSize:16,fontWeight:700,marginBottom:4}}, node.choiceB.label),
+            React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.45)'}}, node.choiceB.desc)
+          ),
+          React.createElement('span', {style:{fontSize:22,flexShrink:0,opacity:0.35}}, '→')
+        )
+      ),
+      React.createElement('div', {style:{textAlign:'center',padding:'12px 20px calc(12px + var(--safe-b))',position:'relative',zIndex:10}},
+        React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.35)'}},
+          '当前累计：', React.createElement('span', {style:{color:node.accent,fontWeight:700,fontSize:15}}, `${totalScore} 分`),
+          React.createElement('span', {style:{margin:'0 8px',color:'rgba(255,255,255,0.15)'}}, '|'),
+          `通关线：${PASS_SCORE} 分`
+        )
+      )
+    );
+  }
+
+  if (phase==='feedback') {
+    const isBest = lastPick.score >= 10;
+    return React.createElement('div', {style:{height:'100%',display:'flex',flexDirection:'column',position:'relative',background:node.bg}},
+      React.createElement(StarryBg, null),
+      React.createElement('div', {style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:32,gap:20,position:'relative',zIndex:10}},
+        React.createElement('div', {className:'bounce-in', style:{fontSize:68}}, isBest ? '🌟' : '💡'),
+        React.createElement('div', {className:'glass fade-up', style:{padding:20,maxWidth:340,width:'100%'}},
+          React.createElement('div', {style:{display:'flex',alignItems:'center',gap:10,marginBottom:12}},
+            React.createElement('span', {style:{fontSize:18,fontWeight:700,width:32,height:32,borderRadius:'50%',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}, lastPick.key),
+            React.createElement('div', null,
+              React.createElement('p', {style:{fontSize:14,fontWeight:700,color:node.accent}}, isBest ? '优秀决策！' : '学到了！'),
+              React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.5)'}}, `你选择了：${lastPick.label}`)
+            ),
+            React.createElement('span', {style:{marginLeft:'auto',fontSize:22,fontWeight:700,color:node.accent}}, `+${lastPick.score}分`)
+          ),
+          React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.82)',lineHeight:1.7}}, lastPick.feedback)
+        ),
+        React.createElement('div', {style:{textAlign:'center'}},
+          React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.4)',marginBottom:4}}, '累计得分'),
+          React.createElement('p', {style:{fontSize:32,fontWeight:800,color:node.accent}}, totalScore, React.createElement('span', {style:{fontSize:16,color:'rgba(255,255,255,0.3)'}}, ` / ${MAX_SCORE}`)),
+          React.createElement('div', {className:'progress-bar', style:{width:200,margin:'8px auto 0'}},
+            React.createElement('div', {className:'progress-fill', style:{width:(totalScore/MAX_SCORE*100)+'%',background:node.accent}})
+          )
+        ),
+        React.createElement('button', {className:'btn1 fade-up', onClick:nextScene, style:{background:node.accent,marginTop:4}},
+          history.length >= TOTAL ? '🏁 查看最终结果 →' : '下一步 →'
+        )
+      )
+    );
+  }
+
+  return null;
+}
+
+// ============================================================
+// 阶段5: Results
+// ============================================================
+function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}) {
+  const {history, totalScore, passed} = result;
+  const [di,setDi] = useState(0);
+  const [flipped,setFlipped] = useState(new Set());
+  const [allDone,setAllDone] = useState(false);
+  const [tab,setTab] = useState(passed?'cards':'review');
+
+  const discoveries = career.discoveries;
+  const disc = discoveries[di];
+  const isF = flipped.has(di);
+
+  let title, badgeEmoji, titleColor, discCount;
+  if (totalScore >= 95) {
+    title=`🏆 金牌${career.name}`; badgeEmoji='🥇'; titleColor='#ffb74d'; discCount=3;
+  } else if (totalScore >= 85) {
+    title=`🥈 优秀${career.name}`; badgeEmoji='🥈'; titleColor='#64b5f6'; discCount=2;
+  } else if (totalScore >= 80) {
+    title=`🥉 合格${career.name}`; badgeEmoji='🥉'; titleColor='#69f0ae'; discCount=1;
+  } else {
+    title=`🌱 实习${career.name}`; badgeEmoji='🌱'; titleColor='#ff8a80'; discCount=0;
+  }
+
+  const flip = ()=>{
+    if(isF)return;
+    const n=new Set(flipped); n.add(di); setFlipped(n);
+    if(n.size>=discCount || n.size>=discoveries.length) setTimeout(()=>setAllDone(true),500);
+  };
+  const nextDisc = ()=>{ if(di<discoveries.length-1) setDi(d=>d+1); };
+
+  const bestCount = history.filter(h=>h.score>=10).length;
+
+  return React.createElement('div', {className:'page', style:{background:'linear-gradient(180deg, #0f0f2d 0%, #1a1a3e 50%, #16213e 100%)'}},
+    React.createElement(StarryBg, null),
+    React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))',position:'relative',zIndex:10}},
+      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 大厅'),
+      React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '体验报告'),
+      React.createElement('div', {style:{width:60}})
+    ),
+    React.createElement('div', {className:'scroll', style:{paddingBottom:120,position:'relative',zIndex:10}},
+      React.createElement('div', {style:{textAlign:'center',marginBottom:8}},
+        React.createElement('div', {className:'bounce-in', style:{
+          width:130,height:130,borderRadius:'50%',margin:'0 auto 16px',
+          background:`conic-gradient(${titleColor} ${totalScore/MAX_SCORE*360}deg, rgba(255,255,255,0.08) 0deg)`,
+          display:'flex',alignItems:'center',justifyContent:'center',
+          boxShadow:`0 0 40px ${titleColor}33`
+        }},
+          React.createElement('div', {style:{width:100,height:100,borderRadius:'50%',background:'rgba(15,15,45,0.95)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}},
+            React.createElement('span', {style:{fontSize:36,fontWeight:800,color:titleColor}}, totalScore),
+            React.createElement('span', {style:{fontSize:12,color:'rgba(255,255,255,0.4)'}}, ` / ${MAX_SCORE} 分`)
+          )
+        ),
+        React.createElement('h1', {style:{fontSize:26,fontWeight:700,marginBottom:4,color:titleColor}}, title),
+        passed
+          ? React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `🎉 恭喜通关！你在 ${history.length} 个场景中做出了 ${bestCount} 个优秀决策`)
+          : React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `💪 距通关还差 ${PASS_SCORE-totalScore} 分，看看哪里可以做得更好吧！`)
+      ),
+      React.createElement('div', {style:{display:'flex',gap:8,justifyContent:'center',marginBottom:20}},
+        React.createElement('button', {onClick:()=>setTab('cards'), style:{
+          padding:'8px 20px',borderRadius:20,border:'none',cursor:'pointer',fontSize:14,fontWeight:600,
+          background:tab==='cards'?`${titleColor}22`:'rgba(255,255,255,0.04)',
+          color:tab==='cards'?titleColor:'rgba(255,255,255,0.5)',
+          border:`1px solid ${tab==='cards'?titleColor+'44':'rgba(255,255,255,0.08)'}`
+        }}, '发现卡'),
+        React.createElement('button', {onClick:()=>setTab('review'), style:{
+          padding:'8px 20px',borderRadius:20,border:'none',cursor:'pointer',fontSize:14,fontWeight:600,
+          background:tab==='review'?`${titleColor}22`:'rgba(255,255,255,0.04)',
+          color:tab==='review'?titleColor:'rgba(255,255,255,0.5)',
+          border:`1px solid ${tab==='review'?titleColor+'44':'rgba(255,255,255,0.08)'}`
+        }}, '决策回顾')
+      ),
+      tab==='cards' && (discCount > 0
+        ? React.createElement(React.Fragment, null,
+            React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.35)',textAlign:'center',marginBottom:12}}, '翻开卡片，看看你今天发现了什么'),
+            React.createElement('div', {style:{display:'flex',justifyContent:'center'}},
+              React.createElement('div', {className:'card-3d', onClick:flip},
+                React.createElement('div', {className:`card-3d-inner ${isF?'flipped':''}`},
+                  React.createElement('div', {className:'card-3d-back glass', style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,overflow:'hidden'}},
+                    React.createElement('div', {style:{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${titleColor},#ff8a80,#ce93d8)`}}),
+                    React.createElement('span', {style:{fontSize:48}}, '🎴'),
+                    React.createElement('p', {style:{fontSize:16,fontWeight:600}}, '今天我发现了...'),
+                    React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.4)'}}, `第 ${di+1} 个秘密`)
+                  ),
+                  React.createElement('div', {className:'card-3d-front glass', style:{display:'flex',flexDirection:'column',justifyContent:'center',padding:24,overflow:'auto'}},
+                    React.createElement('div', {style:{textAlign:'center',marginBottom:12}}, React.createElement('span', {style:{fontSize:44}}, disc.emoji)),
+                    React.createElement('p', {style:{fontSize:16,fontWeight:600,marginBottom:8,textAlign:'center'}}, disc.title),
+                    React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.75)',lineHeight:1.7,textAlign:'center'}}, disc.desc)
+                  )
+                )
+              )
+            ),
+            isF && di<discoveries.length-1 && React.createElement('div', {style:{textAlign:'center',marginTop:12}}, React.createElement('button', {className:'btn2 fade-up', onClick:nextDisc}, '下一张发现卡 →'))
+          )
+        : React.createElement('div', {className:'glass', style:{textAlign:'center',padding:40,margin:'0 20px'}},
+            React.createElement('div', {style:{fontSize:48,marginBottom:12}}, '🌱'),
+            React.createElement('p', {style:{fontSize:16,fontWeight:600,marginBottom:8,color:'rgba(255,255,255,0.7)'}}, '通关后解锁发现卡'),
+            React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.45)',lineHeight:1.6}}, `达到 ${PASS_SCORE} 分即可解锁${career.name}知识发现卡！`, React.createElement('br'), '再试一次，你一定可以的 💪')
+          )
+      ),
+      tab==='review' && React.createElement('div', {style:{padding:'0 16px'}},
+        history.map((h,i)=>{
+          const node = decisionNodes[h.nodeId];
+          const isBest = h.score >= 10;
+          return React.createElement('div', {key:i, className:'fade-up', style:{
+            display:'flex',gap:10,alignItems:'flex-start',padding:14,marginBottom:10,
+            borderRadius:16,background:isBest?'rgba(105,240,174,0.04)':'rgba(255,138,128,0.04)',
+            border:`1px solid ${isBest?'rgba(105,240,174,0.12)':'rgba(255,138,128,0.12)'}`,
+            animationDelay:i*0.05+'s'
+          }},
+            React.createElement('div', {style:{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,flexShrink:0,marginTop:2,background:isBest?'rgba(105,240,174,0.15)':'rgba(255,138,128,0.15)',color:isBest?'#69f0ae':'#ff8a80'}}, i+1),
+            React.createElement('div', {style:{flex:1}},
+              React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.4)',marginBottom:2}}, h.nodeScene),
+              React.createElement('p', {style:{fontSize:14,fontWeight:600,marginBottom:2}}, h.nodeTitle),
+              React.createElement('p', {style:{fontSize:12,color:'rgba(255,255,255,0.55)'}}, `选择：${h.choice==='A'?node.choiceA.label:node.choiceB.label}`)
+            ),
+            React.createElement('span', {style:{fontSize:16,fontWeight:700,color:isBest?'#69f0ae':'#ff8a80',flexShrink:0}}, `+${h.score}`)
+          );
+        })
+      ),
+      React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:12,padding:'0 20px',marginTop:tab==='cards'&&allDone?20:8}},
+        passed && React.createElement(React.Fragment, null,
+          React.createElement('button', {className:'btn1', onClick:onResources}, '📚 查看推荐资源'),
+          React.createElement('button', {className:'btn2', onClick:onRestart}, '🔄 返回大厅')
+        ),
+        !passed && React.createElement(React.Fragment, null,
+          React.createElement('button', {className:'btn1', onClick:onRetry, style:{background:'linear-gradient(135deg, #ff8a80, #ffb74d)'}}, '🔄 再来一次！'),
+          React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)'}}, `🔍 探索身边的${career.name}资源 →`),
+          React.createElement('button', {className:'btn2', onClick:onRestart}, '🏠 返回大厅')
+        ),
+        passed && allDone && tab==='cards' && React.createElement('button', {className:'btn2', onClick:onRetry, style:{marginTop:4}}, '🔄 再挑战一次（试试不同选择）')
+      )
+    ),
+    di===0 && !isF && tab==='cards' && discCount>0 && React.createElement(Mascot, {msg:'点一下卡片，看看你发现了什么秘密！', pos:'br'})
+  );
+}
+
+// ============================================================
+// 阶段6: Resources
+// ============================================================
+function ResourcesPanel({onRestart, career}) {
+  const r = career.resources;
+  return React.createElement('div', {className:'page bg'},
+    React.createElement(StarryBg, null),
+    React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))'}},
+      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 返回'),
+      React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '推荐资源'),
+      React.createElement('div', {style:{width:60}})
+    ),
+    React.createElement('div', {className:'scroll', style:{paddingBottom:100}},
+      React.createElement('div', {style:{textAlign:'center',marginBottom:24}},
+        React.createElement('h1', {style:{fontSize:24,fontWeight:700,marginBottom:4}}, `继续探索${career.name}`),
+        React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '把这些转发给爸妈，让他们帮你安排！')
+      ),
+      React.createElement(ResSection, {title:'体验参观', items:r.visits}),
+      React.createElement(ResSection, {title:'实践机会', items:r.practices}),
+      React.createElement(ResSection, {title:'科普书单', items:r.books})
+    ),
+    React.createElement('div', {style:{position:'fixed',bottom:0,left:0,right:0,zIndex:50,padding:'12px 20px calc(12px + var(--safe-b))',background:'linear-gradient(180deg, transparent 0%, rgba(15,15,45,0.92) 30%, rgba(15,15,45,1) 100%)',display:'flex',gap:10}},
+      React.createElement('button', {className:'btn1', style:{flex:1,fontSize:16}, onClick:()=>{
+        const text = [
+          '【体验参观】',
+          ...r.visits.map(v=>`  • ${v.name}${v.location?' | 📍'+v.location:''}\n    ${v.desc||''}${v.url?'\n    🔗 '+v.url:''}`),
+          '',
+          '【实践机会】',
+          ...r.practices.map(p=>`  • ${p.name}${p.location?' | 📍'+p.location:''}\n    ${p.desc||''}${p.url?'\n    🔗 '+p.url:''}`),
+          '',
+          '【科普书单】',
+          ...r.books.map(b=>`  • ${b.name}\n    ${b.desc||''}`)
+        ].join('\n');
+        if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('已复制！发给爸爸妈妈看看吧 📤'))}
+        else{alert('已复制！发给爸爸妈妈看看吧 📤')}
+      }}, '一键复制资源清单'),
+      React.createElement('button', {className:'btn2', style:{padding:'12px 16px',fontSize:14}, onClick:onRestart}, '返回大厅')
+    )
+  );
+}
+
+function ResSection({title,items}) {
+  if (!items || items.length===0) return null;
+  return React.createElement('div', {style:{marginBottom:20,padding:'0 4px'}},
+    React.createElement('h2', {style:{fontSize:17,fontWeight:700,marginBottom:12}}, title),
+    React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:10}},
+      items.map((it,i)=>React.createElement('div', {key:i, className:'glass fade-up', style:{padding:16,display:'flex',gap:12,alignItems:'flex-start'}},
+        React.createElement('div', {style:{flex:1}},
+          React.createElement('p', {style:{fontSize:15,fontWeight:600,marginBottom:4}}, it.name),
+          React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.65)',lineHeight:1.5}}, it.desc||it.description),
+          React.createElement('div', {style:{display:'flex',gap:8,marginTop:6,flexWrap:'wrap',alignItems:'center'}},
+            it.location && React.createElement('span', {style:{fontSize:11,color:'rgba(100,181,246,0.7)'}}, `📍 ${it.location}`),
+            it.url && React.createElement('a', {href:it.url, target:'_blank', rel:'noopener', style:{fontSize:11,color:'rgba(105,240,174,0.8)',textDecoration:'none',marginLeft:'auto'}}, '🔗 去看看 →')
+          )
+        )
+      ))
+    )
+  );
+}
+
+// ============================================================
+// 主应用
+// ============================================================
+function App() {
+  const [phase,setPhase] = useState('loading');
+  const [career,setCareer] = useState(null);
+  const [decisionNodes,setDecisionNodes] = useState(null);
+  const [gameResult,setGameResult] = useState(null);
+
+  useEffect(()=>{
+    const f=()=>{document.documentElement.style.setProperty('--vh',window.innerHeight*0.01+'px')};
+    f(); window.addEventListener('resize',f); return ()=>window.removeEventListener('resize',f);
+  },[]);
+
+  const selectCareer = useCallback(() => {
+    const c = getRandomCareer();
+    setCareer(c);
+    setDecisionNodes(getCareerDecisionNodes(c));
+    setGameResult(null);
+  }, []);
+
+  const goIntro = useCallback(() => { setPhase('intro'); }, []);
+
+  const reroll = useCallback(() => { setGameResult(null); setPhase('hall'); }, []);
+
+  const reset = useCallback(() => { setGameResult(null); setPhase('hall'); }, []);
+
+  const startGame = useCallback(() => { setGameResult(null); setPhase('experience'); }, []);
+  const retry = useCallback(() => { setGameResult(null); setPhase('experience'); }, []);
+
+  const onGameDone = useCallback((r) => { setGameResult(r); setPhase('result'); }, []);
+
+  switch(phase) {
+    case 'loading': return React.createElement(LoadingScreen, {onDone: ()=>setPhase('hall')});
+    case 'hall': return React.createElement(MysteryBoxEntry, {onFlip: goIntro, onSelect: selectCareer, career: career||careers.astronaut});
+    case 'intro': return React.createElement(CareerIntro, {onStart: startGame, career, onReroll: reroll});
+    case 'experience': return React.createElement(DecisionPlayer, {onDone: onGameDone, decisionNodes});
+    case 'result': return React.createElement(ResultPanel, {result: gameResult, onResources: ()=>setPhase('resources'), onRestart: reset, onRetry: retry, career, decisionNodes});
+    case 'resources': return React.createElement(ResourcesPanel, {onRestart: reset, career});
+    default: return React.createElement(LoadingScreen, {onDone: ()=>setPhase('hall')});
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
