@@ -1773,7 +1773,7 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
   return React.createElement('div', {className:'page', style:{background:'linear-gradient(180deg, #0f0f2d 0%, #1a1a3e 50%, #16213e 100%)'}},
     React.createElement(StarryBg, null),
     React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))',position:'relative',zIndex:10}},
-      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 大厅'),
+      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 再抽一次'),
       React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '体验报告'),
       React.createElement('div', {style:{width:60}})
     ),
@@ -1868,12 +1868,12 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
       React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:12,padding:'0 20px',marginTop:tab==='cards'&&allDone?20:8}},
         passed && React.createElement(React.Fragment, null,
           React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)',padding:'18px 40px',fontSize:18,fontWeight:700}}, '真实体验打卡 →'),
-          React.createElement('button', {onClick:onRestart, style:{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:14,padding:'10px',cursor:'pointer',textDecoration:'underline',textUnderlineOffset:4,alignSelf:'center'}}, '返回大厅')
+          React.createElement('button', {onClick:onRestart, style:{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:14,padding:'10px',cursor:'pointer',textDecoration:'underline',textUnderlineOffset:4,alignSelf:'center'}}, '再抽一次')
         ),
         !passed && React.createElement(React.Fragment, null,
           React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)',padding:'18px 40px',fontSize:18,fontWeight:700}}, '真实体验打卡 →'),
           React.createElement('button', {className:'btn2', onClick:onRetry, style:{borderColor:'rgba(255,138,128,0.3)',opacity:0.7}}, '再来一次'),
-          React.createElement('button', {onClick:onRestart, style:{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:14,padding:'10px',cursor:'pointer',textDecoration:'underline',textUnderlineOffset:4,alignSelf:'center'}}, '返回大厅')
+          React.createElement('button', {onClick:onRestart, style:{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:14,padding:'10px',cursor:'pointer',textDecoration:'underline',textUnderlineOffset:4,alignSelf:'center'}}, '再抽一次')
         ),
       )
     ),
@@ -1889,7 +1889,7 @@ function ResourcesPanel({onRestart, career}) {
   return React.createElement('div', {className:'page bg'},
     React.createElement(StarryBg, null),
     React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))'}},
-      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 返回'),
+      React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onRestart}, '← 再抽一次'),
       React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '推荐资源'),
       React.createElement('div', {style:{width:60}})
     ),
@@ -1917,7 +1917,7 @@ function ResourcesPanel({onRestart, career}) {
         if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('已复制！发给爸爸妈妈看看吧 📤'))}
         else{alert('已复制！发给爸爸妈妈看看吧 📤')}
       }}, '一键复制资源清单'),
-      React.createElement('button', {className:'btn2', style:{padding:'12px 16px',fontSize:14}, onClick:onRestart}, '返回大厅')
+      React.createElement('button', {className:'btn2', style:{padding:'12px 16px',fontSize:14}, onClick:onRestart}, '再抽一次')
     )
   );
 }
