@@ -1508,8 +1508,8 @@ function CareerIntro({onStart, career, onReroll}) {
   return React.createElement('div', {className:'page bg'},
     React.createElement(StarryBg, null),
     React.createElement('div', {className:'scroll', style:{paddingBottom:24}},
-      React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',paddingTop:'max(16px,var(--safe-t))'}, className:'fade-up'},
-        React.createElement('button', {className:'btn2', style:{padding:'8px 16px',fontSize:14}, onClick:onReroll}, '← 再抽一次'),
+      React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 20px',paddingTop:'max(8px,var(--safe-t))'}, className:'fade-up'},
+        React.createElement('button', {onClick:onReroll, style:{background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:13,padding:'8px 12px',cursor:'pointer'}}, '← 再抽一次'),
         React.createElement('span', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '职业介绍'),
         React.createElement('div', {style:{width:60}})
       ),
@@ -1567,7 +1567,7 @@ function CareerIntro({onStart, career, onReroll}) {
         React.createElement('h2', {style:{fontSize:18,fontWeight:600,marginBottom:14}}, `${c.name}的一天`),
         React.createElement('div', {style:{display:'flex',gap:8}},
           c.workScenes.map((s,i)=>React.createElement('div', {key:i, style:{flex:1,textAlign:'center',padding:'12px 6px',borderRadius:14,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}},
-            React.createElement('p', {style:{fontSize:10,color:'rgba(255,183,77,0.6)',marginBottom:2}}, s.time),
+            React.createElement('p', {style:{fontSize:10,color:'rgba(255,183,77,0.6)',marginBottom:2}}, s.time.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u{2600}-\u{27BF}]/gu,'').replace(/[\u{FE00}-\u{FEFF}]/gu,'').trim()),
             React.createElement('p', {style:{fontSize:12,fontWeight:700,marginBottom:2}}, s.title),
             React.createElement('p', {style:{fontSize:10,color:'rgba(255,255,255,0.5)',lineHeight:1.4}}, s.desc)
           ))
@@ -1752,13 +1752,13 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
 
   let title, badgeEmoji, titleColor, discCount;
   if (totalScore >= 95) {
-    title=`🏆 金牌${career.name}`; badgeEmoji='🥇'; titleColor='#ffb74d'; discCount=3;
+    title=`金牌${career.name}`; badgeEmoji=''; titleColor='#ffb74d'; discCount=3;
   } else if (totalScore >= 85) {
-    title=`🥈 优秀${career.name}`; badgeEmoji='🥈'; titleColor='#64b5f6'; discCount=2;
+    title=`优秀${career.name}`; badgeEmoji=''; titleColor='#64b5f6'; discCount=2;
   } else if (totalScore >= 80) {
-    title=`🥉 合格${career.name}`; badgeEmoji='🥉'; titleColor='#69f0ae'; discCount=1;
+    title=`合格${career.name}`; badgeEmoji=''; titleColor='#69f0ae'; discCount=1;
   } else {
-    title=`🌱 实习${career.name}`; badgeEmoji='🌱'; titleColor='#ff8a80'; discCount=0;
+    title=`实习${career.name}`; badgeEmoji=''; titleColor='#ff8a80'; discCount=0;
   }
 
   const flip = ()=>{
@@ -1792,8 +1792,8 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
         ),
         React.createElement('h1', {style:{fontSize:26,fontWeight:700,marginBottom:4,color:titleColor}}, title),
         passed
-          ? React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `🎉 恭喜通关！你在 ${history.length} 个场景中做出了 ${bestCount} 个优秀决策`)
-          : React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `💪 距通关还差 ${PASS_SCORE-totalScore} 分，看看哪里可以做得更好吧！`)
+          ? React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `恭喜通关！你在 ${history.length} 个场景中做出了 ${bestCount} 个优秀决策`)
+          : React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.55)'}}, `距通关还差 ${PASS_SCORE-totalScore} 分，看看哪里可以做得更好吧！`)
       ),
       React.createElement('div', {style:{display:'flex',gap:8,justifyContent:'center',marginBottom:20}},
         React.createElement('button', {onClick:()=>setTab('cards'), style:{
@@ -1817,16 +1817,14 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
                 React.createElement('div', {className:`card-3d-inner ${isF?'flipped':''}`},
                   React.createElement('div', {className:'card-3d-back glass', style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,overflow:'hidden'}},
                     React.createElement('div', {style:{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${titleColor},#ff8a80,#ce93d8)`}}),
-                    React.createElement('span', {style:{fontSize:48}}, '🎴'),
+                    React.createElement('div', {style:{width:40,height:4,borderRadius:2,background:`linear-gradient(90deg,${titleColor},#ff8a80,${titleColor})`,marginBottom:4}}),
                     React.createElement('p', {style:{fontSize:16,fontWeight:600}}, isF ? '继续发现...' : '今天我发现了...'),
                     React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.4)'}}, `第 ${di+1} 个秘密`),
                     !isF && React.createElement('div', {style:{marginTop:4,display:'flex',alignItems:'center',gap:6,padding:'6px 16px',borderRadius:20,background:'rgba(255,255,255,0.06)',border:'1px dashed rgba(255,255,255,0.15)'}},
-                      React.createElement('span', {style:{fontSize:18}}, '👆'),
                       React.createElement('span', {style:{fontSize:13,color:'rgba(255,255,255,0.5)',fontWeight:500}}, '点击翻转卡片')
                     )
                   ),
                   React.createElement('div', {className:'card-3d-front glass', style:{display:'flex',flexDirection:'column',justifyContent:'center',padding:24,overflow:'auto'}},
-                    React.createElement('div', {style:{textAlign:'center',marginBottom:12}}, React.createElement('span', {style:{fontSize:40}}, disc.emoji)),
                     React.createElement('p', {style:{fontSize:15,fontWeight:600,marginBottom:8,textAlign:'center'}}, disc.title),
                     React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.75)',lineHeight:1.7,textAlign:'center'}}, disc.desc)
                   )
@@ -1835,14 +1833,13 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
             ),
             isF && di<discoveries.length-1 && React.createElement('div', {style:{textAlign:'center',marginTop:12}},
               React.createElement('button', {className:'btn2 fade-up', onClick:nextDisc, style:{borderColor:'rgba(255,255,255,0.2)',padding:'10px 24px'}},
-                '👉 翻开下一张发现卡'
+                '翻开下一张发现卡'
               )
             )
           )
         : React.createElement('div', {className:'glass', style:{textAlign:'center',padding:40,margin:'0 20px'}},
-            React.createElement('div', {style:{fontSize:48,marginBottom:12}}, '🌱'),
             React.createElement('p', {style:{fontSize:16,fontWeight:600,marginBottom:8,color:'rgba(255,255,255,0.7)'}}, '通关后解锁发现卡'),
-            React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.45)',lineHeight:1.6}}, `达到 ${PASS_SCORE} 分即可解锁${career.name}知识发现卡！`, React.createElement('br'), '再试一次，你一定可以的 💪')
+            React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.45)',lineHeight:1.6}}, `达到 ${PASS_SCORE} 分即可解锁${career.name}知识发现卡！`, React.createElement('br'), '再试一次，你一定可以的')
           )
       ),
       tab==='review' && React.createElement('div', {style:{padding:'0 16px'}},
@@ -1895,7 +1892,7 @@ function ResourcesPanel({onRestart, career}) {
     ),
     React.createElement('div', {className:'scroll', style:{paddingBottom:100}},
       React.createElement('div', {style:{textAlign:'center',marginBottom:24}},
-        React.createElement('h1', {style:{fontSize:24,fontWeight:700,marginBottom:4}}, `继续探索${career.name}`),
+        React.createElement('h1', {style:{fontSize:18,fontWeight:400,color:'rgba(255,255,255,0.45)',marginBottom:4}}, `继续探索${career.name}`),
         React.createElement('p', {style:{fontSize:14,color:'rgba(255,255,255,0.5)'}}, '把这些转发给爸妈，让他们帮你安排！')
       ),
       React.createElement(ResSection, {title:'体验参观', items:r.visits}),
