@@ -66,7 +66,9 @@ html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'PingFang SC'
 .checkbox{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
 .checkbox.off{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2)}
 .checkbox.on{background:var(--mint)}
-.card-3d{width:100%;max-width:300px;height:200px;perspective:800px;cursor:pointer}
+.card-3d{width:100%;max-width:300px;height:250px;perspective:800px;cursor:pointer}
+.card-3d.unflipped{animation:cardPulse 2s ease-in-out infinite}
+@keyframes cardPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .card-3d-inner{position:relative;width:100%;height:100%;transition:transform .6s var(--ease);transform-style:preserve-3d}
 .card-3d-inner.flipped{transform:rotateY(180deg)}
 .card-3d-front,.card-3d-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px}
@@ -1857,12 +1859,12 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
       ),
       React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:12,padding:'0 20px',marginTop:tab==='cards'&&allDone?20:8}},
         passed && React.createElement(React.Fragment, null,
-          React.createElement('button', {className:'btn1', onClick:onResources}, '📚 查看推荐资源'),
+          React.createElement('button', {className:'btn1', onClick:onResources}, '🏛️ 去哪能体验当${career.name}？→'),
           React.createElement('button', {className:'btn2', onClick:onRestart}, '🔄 返回大厅')
         ),
         !passed && React.createElement(React.Fragment, null,
           React.createElement('button', {className:'btn1', onClick:onRetry, style:{background:'linear-gradient(135deg, #ff8a80, #ffb74d)'}}, '🔄 再来一次！'),
-          React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)'}}, `🔍 探索身边的${career.name}资源 →`),
+          React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)'}}, `📍 看看${career.name}都在什么地方工作 →`),
           React.createElement('button', {className:'btn2', onClick:onRestart}, '🏠 返回大厅')
         ),
         passed && allDone && tab==='cards' && React.createElement('button', {className:'btn2', onClick:onRetry, style:{marginTop:4}}, '🔄 再挑战一次（试试不同选择）')

@@ -66,7 +66,9 @@ html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'PingFang SC'
 .checkbox{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
 .checkbox.off{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2)}
 .checkbox.on{background:var(--mint)}
-.card-3d{width:100%;max-width:300px;height:200px;perspective:800px;cursor:pointer}
+.card-3d{width:100%;max-width:300px;height:250px;perspective:800px;cursor:pointer}
+.card-3d.unflipped{animation:cardPulse 2s ease-in-out infinite}
+@keyframes cardPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .card-3d-inner{position:relative;width:100%;height:100%;transition:transform .6s var(--ease);transform-style:preserve-3d}
 .card-3d-inner.flipped{transform:rotateY(180deg)}
 .card-3d-front,.card-3d-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px}
@@ -1811,23 +1813,31 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
         ? React.createElement(React.Fragment, null,
             React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.35)',textAlign:'center',marginBottom:12}}, '翻开卡片，看看你今天发现了什么'),
             React.createElement('div', {style:{display:'flex',justifyContent:'center'}},
-              React.createElement('div', {className:'card-3d', onClick:flip},
+              React.createElement('div', {className:`card-3d${isF?'':' unflipped'}`, onClick:flip},
                 React.createElement('div', {className:`card-3d-inner ${isF?'flipped':''}`},
                   React.createElement('div', {className:'card-3d-back glass', style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,overflow:'hidden'}},
                     React.createElement('div', {style:{position:'absolute',top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${titleColor},#ff8a80,#ce93d8)`}}),
                     React.createElement('span', {style:{fontSize:48}}, '🎴'),
-                    React.createElement('p', {style:{fontSize:16,fontWeight:600}}, '今天我发现了...'),
-                    React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.4)'}}, `第 ${di+1} 个秘密`)
+                    React.createElement('p', {style:{fontSize:16,fontWeight:600}}, isF ? '继续发现...' : '今天我发现了...'),
+                    React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.4)'}}, `第 ${di+1} 个秘密`),
+                    !isF && React.createElement('div', {style:{marginTop:4,display:'flex',alignItems:'center',gap:6,padding:'6px 16px',borderRadius:20,background:'rgba(255,255,255,0.06)',border:'1px dashed rgba(255,255,255,0.15)'}},
+                      React.createElement('span', {style:{fontSize:18}}, '👆'),
+                      React.createElement('span', {style:{fontSize:13,color:'rgba(255,255,255,0.5)',fontWeight:500}}, '点击翻转卡片')
+                    )
                   ),
                   React.createElement('div', {className:'card-3d-front glass', style:{display:'flex',flexDirection:'column',justifyContent:'center',padding:24,overflow:'auto'}},
-                    React.createElement('div', {style:{textAlign:'center',marginBottom:12}}, React.createElement('span', {style:{fontSize:44}}, disc.emoji)),
-                    React.createElement('p', {style:{fontSize:16,fontWeight:600,marginBottom:8,textAlign:'center'}}, disc.title),
+                    React.createElement('div', {style:{textAlign:'center',marginBottom:12}}, React.createElement('span', {style:{fontSize:40}}, disc.emoji)),
+                    React.createElement('p', {style:{fontSize:15,fontWeight:600,marginBottom:8,textAlign:'center'}}, disc.title),
                     React.createElement('p', {style:{fontSize:13,color:'rgba(255,255,255,0.75)',lineHeight:1.7,textAlign:'center'}}, disc.desc)
                   )
                 )
               )
             ),
-            isF && di<discoveries.length-1 && React.createElement('div', {style:{textAlign:'center',marginTop:12}}, React.createElement('button', {className:'btn2 fade-up', onClick:nextDisc}, '下一张发现卡 →'))
+            isF && di<discoveries.length-1 && React.createElement('div', {style:{textAlign:'center',marginTop:12}},
+              React.createElement('button', {className:'btn2 fade-up', onClick:nextDisc, style:{borderColor:'rgba(255,255,255,0.2)',padding:'10px 24px'}},
+                '👉 翻开下一张发现卡'
+              )
+            )
           )
         : React.createElement('div', {className:'glass', style:{textAlign:'center',padding:40,margin:'0 20px'}},
             React.createElement('div', {style:{fontSize:48,marginBottom:12}}, '🌱'),
@@ -1857,12 +1867,12 @@ function ResultPanel({result,onResources,onRestart,onRetry,career,decisionNodes}
       ),
       React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:12,padding:'0 20px',marginTop:tab==='cards'&&allDone?20:8}},
         passed && React.createElement(React.Fragment, null,
-          React.createElement('button', {className:'btn1', onClick:onResources}, '📚 查看推荐资源'),
+          React.createElement('button', {className:'btn1', onClick:onResources}, '🏛️ 去哪能体验当${career.name}？→'),
           React.createElement('button', {className:'btn2', onClick:onRestart}, '🔄 返回大厅')
         ),
         !passed && React.createElement(React.Fragment, null,
           React.createElement('button', {className:'btn1', onClick:onRetry, style:{background:'linear-gradient(135deg, #ff8a80, #ffb74d)'}}, '🔄 再来一次！'),
-          React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)'}}, `🔍 探索身边的${career.name}资源 →`),
+          React.createElement('button', {className:'btn1', onClick:onResources, style:{background:'linear-gradient(135deg, #64b5f6, #42a5f5)'}}, `📍 看看${career.name}都在什么地方工作 →`),
           React.createElement('button', {className:'btn2', onClick:onRestart}, '🏠 返回大厅')
         ),
         passed && allDone && tab==='cards' && React.createElement('button', {className:'btn2', onClick:onRetry, style:{marginTop:4}}, '🔄 再挑战一次（试试不同选择）')
