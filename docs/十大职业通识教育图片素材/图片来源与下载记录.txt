@@ -1,0 +1,30 @@
+﻿成功	01_临床医生	01_医生诊察患者.jpg	Indian Express 医疗报道	https://images.indianexpress.com/2024/12/doctor.jpg
+成功	01_临床医生	02_术前检查.jpg	The Straits Times	https://static1.straitstimes.com.sg/s3fs-public/articles/2019/05/31/ak_ych_3105.jpg
+成功	01_临床医生	03_医院床旁检查.jpg	Labmedica	https://globetechcdn.com/mobile_es_labmedica/images/stories/articles/article_images/2023-11-22/SDD-294799361.jpg
+成功	02_基础教育教师	01_小学课堂教学.jpg	凤凰网安徽	https://x0.ifengimg.com/ucms/2023_13/E2A90D97D981CB904C4A716B819839EE24995B33_size89_w600_h399.jpg
+成功	02_基础教育教师	02_教师辅导学生.png	凤凰网安徽	https://x0.ifengimg.com/ucms/2023_17/3BB8DF68E474ABEDCEF97FF8C6E618841EF628A3_size514_w600_h420.png
+成功	02_基础教育教师	03_互动课堂.jpeg	凤凰网	https://x0.ifengimg.com/res/2022/112C03AC16E9DD9F303E44D005A890DCFA35DD97_size192_w1080_h811.jpeg
+失败	03_心理咨询师	01_咨询会谈.jpg	两性心理健康指南	https://jwxnu.com/articles_all_new/imgs/004-3.jpg
+成功	03_心理咨询师	02_咨询师倾听记录.png	心理咨询行业文章	https://biaowang-content.oss-cn-beijing.aliyuncs.com/file/v2/20251217/82395137-366f-4fd5-a278-cbd6628cfc5f/6512bd43d9caa6e02c990b0a82652dca.png
+成功	03_心理咨询师	03_专业咨询场景.jpg	澎湃新闻	https://imgpai.thepaper.cn/pph/newpai/image/20260122/7851a455-875b-49cc-ac76-cf6cb7c00b04.jpg
+成功	04_养老护理员	01_老人康复训练.jpg	人民日报	https://paper.people.com.cn/rmrb/pc/pic/202504/30/7a5ee730-19bd-4fba-a90d-3bf0e866a4af.jpg
+成功	04_养老护理员	02_居家养老康复.jpeg	广州居家养老报道	https://p1.itc.cn/q_70/images03/20220512/1a2c578567994ea197c1ef701b559b3f.jpeg
+成功	04_养老护理员	03_护理员协助训练.jpeg	杭州社区养老报道	https://5b0988e595225.cdn.sohucs.com/images/20190718/6084762137414f0c9daa317233d8b09a.jpeg
+成功	05_艺术家插画师	01_数位屏创作.png	中国国际动漫节	https://jhj.cicaf.com/uploads/image/2021-09-20/ccb887efb1d35c5929f9ff61a8ff804d83f247a4.png
+成功	05_艺术家插画师	02_数字插画工作场景.jpg	中国青年网	https://t.m.youth.cn/magicimg/edu.youth.cn/photo/sjjl/201704/W020170420326350966909.jpg
+失败	05_艺术家插画师	03_插画师工作室.jpeg	诚品专访	https://meet.eslite.com/CMS/Files/%40CD00/0627dee/d1.jpg
+成功	06_非遗传承人	01_剪纸传承人.jpg	浙江省文化馆	https://www.zjaca.com/KUpload/image/20201208/20201208152847_8416.jpg
+成功	06_非遗传承人	02_两代剪纸艺人.jpg	澎湃新闻	https://imagepphcloud.thepaper.cn/pph/image/129/971/942.jpg
+成功	06_非遗传承人	03_皮影制作.jpg	新浪新闻	https://i1.sinaimg.cn/dy/s/p/20090331/idx/0000/0000/U2596P1T468D5840F10829DT20090331104249.jpg
+成功	07_HRBP与猎头	01_招聘面试.png	CSDN 面试文章	https://i-blog.csdnimg.cn/blog_migrate/343c0b9f628693541c61f34976c8b27a.png
+成功	07_HRBP与猎头	02_HR记录候选人.webp	i人事	https://blog.ihr360.com/img/2025-07-07/4d76f5c7-aecc-4d0d-9a81-bb2875a6fcf1.webp.webp
+成功	07_HRBP与猎头	03_建立信任.webp	i人事	https://blog.ihr360.com/img/2025-06-25/YsrGzmYiViF1YpbfS7HJDZAHtPXnUs.webp.webp
+成功	08_诉讼律师	01_法律援助咨询.jpg	澎湃政务	https://imagepphcloud.thepaper.cn/pph/image/304/436/923.jpg
+成功	08_诉讼律师	02_查看法律文件.jpg	上海申房律师事务所	https://www.shenfanglaw.com/upload/image/20220907/1662532736664570.jpg
+成功	08_诉讼律师	03_社区法律咨询.jpg	上海申房律师事务所	https://www.shenfanglaw.com/upload/image/20240422/1713757251907102.jpg
+成功	09_工程项目经理	01_施工现场查看图纸.jpg	国家审计署	https://www.audit.gov.cn/n6/n570/n571/c10523965/part/10523979.jpg
+成功	09_工程项目经理	02_现场质量检查.png	中国建筑	https://www.cscec.com/xwzx_new/zqydt_new/202505/W020250523743818093153.png
+成功	09_工程项目经理	03_现场协调.jpeg	工程管理报道	https://5b0988e595225.cdn.sohucs.com/q_70%2Cc_zoom%2Cw_640/images/20171107/a15816a90fa844f79f6328066fb940b4.jpeg
+成功	10_调查记者与专栏作家	01_现场采访.jpg	中国日报	https://cn.chinadaily.com.cn/img/attachement/jpg/site1/20180814/1cdc87a638.jpg
+成功	10_调查记者与专栏作家	02_记者出镜报道.jpg	中国网	https://images.china.cn/attachement/jpg/site1007/20150306/001ec949fb231663876124.jpg
+失败	10_调查记者与专栏作家	03_新闻编辑部.jpg	中国行业新闻网	https://www.zgjx.cn/2022-02/09/1310463139_16444048097331n.jpg
